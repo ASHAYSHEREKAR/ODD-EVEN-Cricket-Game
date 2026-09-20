@@ -298,6 +298,14 @@ const UIController = {
             }
         }
 
+        // Synchronize Batting Controls Panel visibility & disabled state
+        const controlPanel = document.querySelector('.batting-control-panel');
+        if (controlPanel) {
+            controlPanel.style.display = isHumanBattingThisTurn ? 'flex' : 'none';
+        }
+        if (swingBtn) swingBtn.disabled = !isHumanBattingThisTurn;
+        if (defendBtn) defendBtn.disabled = !isHumanBattingThisTurn;
+
         // Notify Canvas Renderer for subtle on-crease visual aura
         if (window.CanvasRenderer) {
             CanvasRenderer.state.isPreferredBall = isPref && isHumanBattingThisTurn;
