@@ -86,12 +86,21 @@ const GameState = {
         this.match.isTie = false;
         this.match.resultDescription = '';
 
-        const p1Name = this.gameMode === this.MODE_LOCAL_2P 
-            ? this.getStoredP1Name() 
-            : this.getStoredPlayerName();
-        const p2Name = this.gameMode === this.MODE_LOCAL_2P 
-            ? this.getStoredP2Name() 
-            : (this.gameMode === this.MODE_ONLINE ? (MultiplayerManager.remotePlayerName || 'Opponent') : 'Computer');
+        let p1Name = 'Player 1';
+        let p2Name = 'Computer';
+        if (this.gameMode === this.MODE_LOCAL_2P) {
+            p1Name = this.getStoredP1Name();
+            p2Name = this.getStoredP2Name();
+        } else if (this.gameMode === this.MODE_ONLINE) {
+            const isHost = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isHost) || this.localPlayerRole === 'p1';
+            const localName = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.localPlayerName) || this.getStoredPlayerName();
+            const remoteName = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.remotePlayerName) || (isHost ? 'Opponent' : 'Host');
+            p1Name = isHost ? localName : remoteName;
+            p2Name = isHost ? remoteName : localName;
+        } else {
+            p1Name = this.getStoredPlayerName();
+            p2Name = 'Computer';
+        }
 
         this.player = {
             name: p1Name,
@@ -226,7 +235,11 @@ const GameState = {
         try {
             localStorage.setItem('cricket_player_name', finalName);
         } catch (e) {}
-        this.player.name = finalName;
+        if (this.gameMode === this.MODE_ONLINE && this.localPlayerRole === 'p2') {
+            this.computer.name = finalName;
+        } else {
+            this.player.name = finalName;
+        }
         return finalName;
     },
 

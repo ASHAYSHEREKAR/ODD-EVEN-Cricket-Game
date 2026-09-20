@@ -203,8 +203,12 @@ class CricketGameApp {
             if (this.deliveryActive && !this.isProcessingBall) {
                 this.isProcessingBall = true;
                 this.deliveryActive = false;
-                AnimationController.animateBatSwing(data.isDefensive ? 'defend' : 'swing');
-                const outcome = GameLogic.calculateShotOutcome(data.timingOffset, data.isDefensive);
+                if (data.outcome && data.outcome.rating === 'MISSED') {
+                    // Missed ball - no swing animation
+                } else {
+                    AnimationController.animateBatSwing(data.isDefensive ? 'defend' : 'swing');
+                }
+                const outcome = data.outcome || GameLogic.calculateShotOutcome(data.timingOffset, data.isDefensive);
                 await this.resolveDeliveryOutcome(outcome);
             }
         });
@@ -246,7 +250,8 @@ class CricketGameApp {
         if (GameState.gameMode === GameState.MODE_LOCAL_2P) {
             return true; // Both innings are human-controlled in Local 2P
         } else if (GameState.gameMode === GameState.MODE_ONLINE) {
-            return GameState.localPlayerRole === 'p1' ? GameState.player.isBatting : GameState.computer.isBatting;
+            const isHost = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isHost) || GameState.localPlayerRole === 'p1';
+            return isHost ? GameState.player.isBatting : GameState.computer.isBatting;
         } else {
             return GameState.player.isBatting;
         }
@@ -346,6 +351,9 @@ class CricketGameApp {
     }
 
     launchInnings2() {
+        if (GameState.currentPhase !== GameState.PHASE_INNINGS_2) {
+            GameState.switchInnings();
+        }
         UIController.showScreen('game');
         if (window.CanvasRenderer) {
             setTimeout(() => CanvasRenderer.resize(), 40);
@@ -437,11 +445,31 @@ class CricketGameApp {
 
             if (isHumanBatting && this.deliveryActive && !this.isProcessingBall) {
                 // Ball passed without shot -> DOT or Wicket
-                await this.resolveDeliveryOutcome({ runs: 0, isWicket: Math.random() < 0.20, rating: 'MISSED', ratingText: '💨 BEATEN BY PACE' });
+                this.isProcessingBall = true;
+                this.deliveryActive = false;
+                const missedOutcome = { runs: 0, isWicket: Math.random() < 0.20, rating: 'MISSED', ratingText: '💨 BEATEN BY PACE' };
+                if (GameState.gameMode === GameState.MODE_ONLINE && MultiplayerManager.isConnected) {
+                    MultiplayerManager.send(MultiplayerManager.EVENTS.BAT_ACTION, {
+                        timingOffset: 9999,
+                        isDefensive: false,
+                        outcome: missedOutcome
+                    });
+                }
+                await this.resolveDeliveryOutcome(missedOutcome);
             } else if (!isHumanBatting && this.deliveryActive && !this.isProcessingBall && GameState.gameMode === GameState.MODE_SINGLE) {
                 // AI is batting
                 const aiOutcome = GameLogic.simulateAIBattingTurn();
                 await this.resolveDeliveryOutcome(aiOutcome);
+            } else if (!isHumanBatting && this.deliveryActive && !this.isProcessingBall && GameState.gameMode === GameState.MODE_ONLINE) {
+                // Bowler network safety timeout: if remote batsman packet was delayed or dropped, resolve fallback missed outcome so match never hangs
+                setTimeout(async () => {
+                    if (this.deliveryActive && !this.isProcessingBall && GameState.gameMode === GameState.MODE_ONLINE) {
+                        this.isProcessingBall = true;
+                        this.deliveryActive = false;
+                        const fallbackOutcome = { runs: 0, isWicket: false, rating: 'MISSED', ratingText: '💨 BEATEN BY PACE' };
+                        await this.resolveDeliveryOutcome(fallbackOutcome);
+                    }
+                }, 2000);
             }
         });
     }
@@ -458,18 +486,20 @@ class CricketGameApp {
         const currentTime = performance.now();
         const timingOffset = currentTime - this.contactWindow.contactTime;
 
+        // Evaluate shot outcome
+        const outcome = GameLogic.calculateShotOutcome(timingOffset, isDefensive);
+
         if (GameState.gameMode === GameState.MODE_ONLINE && MultiplayerManager.isConnected) {
             MultiplayerManager.send(MultiplayerManager.EVENTS.BAT_ACTION, {
                 timingOffset,
-                isDefensive
+                isDefensive,
+                outcome
             });
         }
 
         // Animate bat swing
         AnimationController.animateBatSwing(isDefensive ? 'defend' : 'swing');
 
-        // Evaluate shot outcome
-        const outcome = GameLogic.calculateShotOutcome(timingOffset, isDefensive);
         await this.resolveDeliveryOutcome(outcome);
     }
 
@@ -525,7 +555,9 @@ class CricketGameApp {
         const target = inn1Score + 1;
         const opponentTeam = { ...GameState[inn1BattingKey] };
 
-        GameState.switchInnings();
+        if (GameState.currentPhase !== GameState.PHASE_INNINGS_2 && GameState.currentPhase !== GameState.PHASE_INNINGS_BREAK) {
+            GameState.switchInnings();
+        }
         const newBatting = GameState.getBattingTeamState();
 
         UIController.updateScoreboard();

@@ -470,7 +470,8 @@ const UIController = {
         if (GameState.gameMode === GameState.MODE_LOCAL_2P) {
             isHumanBattingThisTurn = true;
         } else if (GameState.gameMode === GameState.MODE_ONLINE) {
-            isHumanBattingThisTurn = (GameState.localPlayerRole === 'p1' ? GameState.player.isBatting : GameState.computer.isBatting);
+            const isHost = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isHost) || GameState.localPlayerRole === 'p1';
+            isHumanBattingThisTurn = isHost ? GameState.player.isBatting : GameState.computer.isBatting;
         } else {
             isHumanBattingThisTurn = GameState.player.isBatting;
         }
