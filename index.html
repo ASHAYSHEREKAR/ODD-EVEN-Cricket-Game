@@ -25,12 +25,12 @@
         })();
     </script>
 
-    <!-- Stylesheets with Cache Buster v25.0 -->
-    <link rel="stylesheet" href="css/main.css?v=25.0">
-    <link rel="stylesheet" href="css/cricket-field.css?v=25.0">
-    <link rel="stylesheet" href="css/stick-figures.css?v=25.0">
-    <link rel="stylesheet" href="css/animations.css?v=25.0">
-    <link rel="stylesheet" href="css/responsive.css?v=25.0">
+    <!-- Stylesheets with Cache Buster v26.0 -->
+    <link rel="stylesheet" href="css/main.css?v=26.0">
+    <link rel="stylesheet" href="css/cricket-field.css?v=26.0">
+    <link rel="stylesheet" href="css/stick-figures.css?v=26.0">
+    <link rel="stylesheet" href="css/animations.css?v=26.0">
+    <link rel="stylesheet" href="css/responsive.css?v=26.0">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -265,8 +265,9 @@
                 </div>
 
                 <!-- Lobby Action Buttons -->
-                <div class="menu-buttons">
+                <div class="menu-buttons" id="online-room-actions">
                     <button id="room-start-match-btn" class="btn btn-primary btn-pulse" disabled>⏳ WAITING FOR OPPONENT...</button>
+                    <button id="room-guest-ready-btn" class="btn btn-primary btn-pulse btn-ready-toggle hidden">✅ I'M READY!</button>
                     <button id="room-leave-btn" class="btn btn-secondary">🚪 LEAVE ROOM</button>
                 </div>
             </div>
@@ -500,17 +501,17 @@
     </div>
 
     <!-- Local PeerJS WebRTC Library with safe fallback -->
-    <script src="js/peerjs.min.js?v=25.0" onerror="console.warn('PeerJS library failed to load; multiplayer will use fallback');"></script>
+    <script src="js/peerjs.min.js?v=26.0" onerror="console.warn('PeerJS library failed to load; multiplayer will use fallback');"></script>
 
-    <!-- JavaScript Files with Cache Buster v25.0 -->
-    <script src="js/utils.js?v=25.0"></script>
-    <script src="js/multiplayer-manager.js?v=25.0"></script>
-    <script src="js/game-state.js?v=25.0"></script>
-    <script src="js/game-logic.js?v=25.0"></script>
-    <script src="js/canvas-renderer.js?v=25.0"></script>
-    <script src="js/animation-controller.js?v=25.0"></script>
-    <script src="js/ui-controller.js?v=25.0"></script>
-    <script src="js/app.js?v=25.0"></script>
+    <!-- JavaScript Files with Cache Buster v26.0 -->
+    <script src="js/utils.js?v=26.0"></script>
+    <script src="js/multiplayer-manager.js?v=26.0"></script>
+    <script src="js/game-state.js?v=26.0"></script>
+    <script src="js/game-logic.js?v=26.0"></script>
+    <script src="js/canvas-renderer.js?v=26.0"></script>
+    <script src="js/animation-controller.js?v=26.0"></script>
+    <script src="js/ui-controller.js?v=26.0"></script>
+    <script src="js/app.js?v=26.0"></script>
 
     <script>
         // Fallback auto-init for CanvasRenderer and menu screen visibility

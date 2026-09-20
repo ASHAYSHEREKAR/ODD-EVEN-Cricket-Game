@@ -71,8 +71,11 @@ const UIController = {
                 MultiplayerManager.hostRoom(pName, (code) => {
                     hostBtn.disabled = false;
                     hostBtn.textContent = '🏠 CREATE ROOM';
+                    if (window.cricketGameApp) {
+                        window.cricketGameApp.guestIsReady = false;
+                    }
                     UIController.showScreen('onlineRoom');
-                    UIController.updateOnlineRoomUI(code, true, pName, null, false, balls);
+                    UIController.updateOnlineRoomUI(code, true, pName, null, false, balls, false);
                 }, (err) => {
                     hostBtn.disabled = false;
                     hostBtn.textContent = '🏠 CREATE ROOM';
@@ -106,8 +109,11 @@ const UIController = {
                 MultiplayerManager.joinRoom(code, pName, () => {
                     joinConfirmBtn.disabled = false;
                     if (joinStatusElem) joinStatusElem.textContent = '';
+                    if (window.cricketGameApp) {
+                        window.cricketGameApp.isGuestReady = false;
+                    }
                     UIController.showScreen('onlineRoom');
-                    UIController.updateOnlineRoomUI(code, false, MultiplayerManager.remotePlayerName || 'Host', pName, true, 12);
+                    UIController.updateOnlineRoomUI(code, false, MultiplayerManager.remotePlayerName || 'Host', pName, true, 12, false);
                 }, (err) => {
                     joinConfirmBtn.disabled = false;
                     if (joinStatusElem) joinStatusElem.textContent = `❌ ${err}`;
@@ -199,12 +205,42 @@ const UIController = {
             });
         }
 
+        const guestReadyBtn = document.getElementById('room-guest-ready-btn');
+        if (guestReadyBtn) {
+            guestReadyBtn.addEventListener('click', () => {
+                if (MultiplayerManager.isHost || !MultiplayerManager.isConnected) return;
+                const app = window.cricketGameApp;
+                if (!app) return;
+                app.isGuestReady = !app.isGuestReady;
+
+                // Send ready toggle packet to Host
+                MultiplayerManager.send(MultiplayerManager.EVENTS.GUEST_READY, {
+                    ready: app.isGuestReady,
+                    name: MultiplayerManager.localPlayerName
+                });
+
+                // Update local UI immediately
+                UIController.updateOnlineRoomUI(
+                    MultiplayerManager.roomCode,
+                    false,
+                    MultiplayerManager.remotePlayerName || 'Host',
+                    MultiplayerManager.localPlayerName,
+                    true,
+                    app.selectedBalls,
+                    app.isGuestReady
+                );
+            });
+        }
+
         if (startBtn) {
             startBtn.addEventListener('click', () => {
                 if (!MultiplayerManager.isHost || !MultiplayerManager.isConnected) return;
-                if (window.cricketGameApp) {
-                    window.cricketGameApp.startTossSequence();
+                const app = window.cricketGameApp;
+                if (!app?.guestIsReady) {
+                    alert('Challenger is not ready yet! They must click "I\'M READY!" before the match can start.');
+                    return;
                 }
+                app.startTossSequence();
             });
         }
     },
@@ -290,7 +326,7 @@ const UIController = {
     /**
      * Updates Dedicated Online Room UI
      */
-    updateOnlineRoomUI(roomCode, isHost, hostName, guestName, isGuestConnected, selectedBalls = 12) {
+    updateOnlineRoomUI(roomCode, isHost, hostName, guestName, isGuestConnected, selectedBalls = 12, isGuestReady = false) {
         const codeElem = document.getElementById('room-screen-code');
         const roleBadge = document.getElementById('online-room-role-badge');
         const hostNameElem = document.getElementById('room-host-name');
@@ -299,6 +335,8 @@ const UIController = {
         const guestStatus = document.getElementById('room-guest-status');
         const kickBtn = document.getElementById('room-kick-guest-btn');
         const startBtn = document.getElementById('room-start-match-btn');
+        const guestReadyBtn = document.getElementById('room-guest-ready-btn');
+        const leaveBtn = document.getElementById('room-leave-btn');
         const statusDesc = document.getElementById('room-status-desc');
         const oversSelector = document.getElementById('room-overs-selector');
         const authorityBadge = document.getElementById('room-settings-authority');
@@ -306,28 +344,26 @@ const UIController = {
         if (codeElem) codeElem.textContent = roomCode || 'CRIC-XXXX';
         if (roleBadge) roleBadge.textContent = isHost ? '👑 HOST LOBBY' : '🎮 CHALLENGER LOBBY';
         if (hostNameElem) hostNameElem.textContent = hostName || 'Host';
+        if (leaveBtn) leaveBtn.textContent = isHost ? '🚪 CLOSE ROOM' : '🚪 LEAVE ROOM';
 
         if (authorityBadge) {
-            authorityBadge.textContent = isHost ? 'CONFIGURED BY YOU (HOST)' : `CONFIGURED BY ${(hostName || 'HOST').toUpperCase()}`;
+            authorityBadge.textContent = isHost ? '⚡ CONFIGURED BY YOU (HOST)' : `🔒 CONFIGURED BY ${(hostName || 'HOST').toUpperCase()}`;
         }
 
         if (oversSelector) {
             const btns = oversSelector.querySelectorAll('.btn-ball-count');
             btns.forEach(btn => {
                 const balls = parseInt(btn.dataset.balls);
-                btn.classList.toggle('active', balls === selectedBalls);
+                const isActive = (balls === selectedBalls);
+                btn.classList.toggle('active', isActive);
                 btn.style.pointerEvents = isHost ? 'auto' : 'none';
-                btn.style.opacity = isHost ? '1' : (balls === selectedBalls ? '1' : '0.5');
+                btn.style.opacity = isHost ? '1' : (isActive ? '1' : '0.55');
             });
         }
 
         if (isGuestConnected) {
-            if (guestNameElem) guestNameElem.textContent = guestName || 'Player 2';
+            if (guestNameElem) guestNameElem.textContent = guestName || 'Challenger';
             if (guestAvatar) guestAvatar.textContent = '🎮';
-            if (guestStatus) {
-                guestStatus.className = 'slot-status-badge ready-badge';
-                guestStatus.textContent = 'READY ✅';
-            }
             if (kickBtn) {
                 if (isHost) {
                     Utils.show(kickBtn);
@@ -335,19 +371,52 @@ const UIController = {
                     Utils.hide(kickBtn);
                 }
             }
-            if (statusDesc) statusDesc.textContent = `${guestName || 'Opponent'} is in the room! Ready to play.`;
-            if (startBtn) {
-                if (isHost) {
+
+            if (isGuestReady) {
+                if (guestStatus) {
+                    guestStatus.className = 'slot-status-badge ready-badge';
+                    guestStatus.textContent = 'READY ✅';
+                }
+            } else {
+                if (guestStatus) {
+                    guestStatus.className = 'slot-status-badge not-ready-badge';
+                    guestStatus.textContent = 'NOT READY ⏳';
+                }
+            }
+
+            if (isHost) {
+                // Host sees Start Match Button
+                Utils.show(startBtn);
+                Utils.hide(guestReadyBtn);
+
+                if (isGuestReady) {
                     startBtn.disabled = false;
-                    startBtn.textContent = '🚀 START COIN TOSS';
+                    startBtn.textContent = '🏏 START MATCH!';
                     startBtn.classList.add('btn-pulse');
+                    if (statusDesc) statusDesc.textContent = `✅ ${guestName || 'Challenger'} is READY! You can start the match now.`;
                 } else {
                     startBtn.disabled = true;
-                    startBtn.textContent = '⏳ WAITING FOR HOST TO START...';
+                    startBtn.textContent = `⏳ WAITING FOR ${(guestName || 'GUEST').toUpperCase()} TO READY...`;
                     startBtn.classList.remove('btn-pulse');
+                    if (statusDesc) statusDesc.textContent = `⏳ ${guestName || 'Challenger'} joined! Waiting for them to click "I'M READY".`;
+                }
+            } else {
+                // Guest sees Ready Toggle Button
+                Utils.hide(startBtn);
+                Utils.show(guestReadyBtn);
+
+                if (isGuestReady) {
+                    guestReadyBtn.textContent = '⏳ READY (CLICK TO CANCEL)';
+                    guestReadyBtn.className = 'btn btn-ready-active';
+                    if (statusDesc) statusDesc.textContent = `✅ You are READY! Waiting for ${hostName || 'Host'} to start the game...`;
+                } else {
+                    guestReadyBtn.textContent = "✅ I'M READY!";
+                    guestReadyBtn.className = 'btn btn-primary btn-pulse btn-ready-toggle';
+                    if (statusDesc) statusDesc.textContent = '⚠️ Click "I\'M READY!" to let the host start the match.';
                 }
             }
         } else {
+            // Guest not yet connected
             if (guestNameElem) guestNameElem.textContent = 'Waiting for opponent...';
             if (guestAvatar) guestAvatar.textContent = '⏳';
             if (guestStatus) {
@@ -355,11 +424,20 @@ const UIController = {
                 guestStatus.textContent = 'WAITING';
             }
             if (kickBtn) Utils.hide(kickBtn);
-            if (statusDesc) statusDesc.textContent = 'Share the Room Code or Invite Link with a friend...';
-            if (startBtn) {
+
+            if (isHost) {
+                Utils.show(startBtn);
+                Utils.hide(guestReadyBtn);
                 startBtn.disabled = true;
-                startBtn.textContent = isHost ? '⏳ WAITING FOR OPPONENT TO JOIN...' : '⏳ CONNECTING TO HOST...';
+                startBtn.textContent = '⏳ WAITING FOR OPPONENT TO JOIN...';
                 startBtn.classList.remove('btn-pulse');
+                if (statusDesc) statusDesc.textContent = 'Share the Room Code or Invite Link with a friend to join...';
+            } else {
+                Utils.hide(startBtn);
+                Utils.show(guestReadyBtn);
+                guestReadyBtn.disabled = true;
+                guestReadyBtn.textContent = '⏳ CONNECTING TO HOST...';
+                if (statusDesc) statusDesc.textContent = 'Connecting to match room...';
             }
         }
     },

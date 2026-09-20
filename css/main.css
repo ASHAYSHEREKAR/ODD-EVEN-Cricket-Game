@@ -925,6 +925,29 @@ body {
     animation: goldBadgePulse 1.2s infinite alternate;
 }
 
+.not-ready-badge {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+    animation: goldBadgePulse 1.2s infinite alternate;
+}
+
+.btn-ready-toggle {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    border: 2px solid #4ade80 !important;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4) !important;
+    color: #ffffff !important;
+    font-weight: 800;
+}
+
+.btn-ready-active {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+    border: 2px solid #fb923c !important;
+    box-shadow: 0 0 15px rgba(234, 88, 12, 0.35) !important;
+    color: #ffffff !important;
+    font-weight: 800;
+}
+
 .room-guest-controls {
     display: flex;
     align-items: center;

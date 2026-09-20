@@ -17,6 +17,7 @@ const MultiplayerManager = {
     EVENTS: {
         ROOM_JOINED: 'ROOM_JOINED',
         LOBBY_READY: 'LOBBY_READY',
+        GUEST_READY: 'GUEST_READY',
         SETTINGS_SYNC: 'SETTINGS_SYNC',
         KICK_PLAYER: 'KICK_PLAYER',
         ROOM_CLOSED: 'ROOM_CLOSED',
@@ -230,17 +231,21 @@ const MultiplayerManager = {
 
         if (type === this.EVENTS.ROOM_JOINED) {
             this.remotePlayerName = payload.name || 'Opponent';
-            // Host sends confirmation back with its own name
+            // Host sends confirmation back with its own name and current ball setting
             if (this.isHost) {
+                const currentBalls = window.cricketGameApp?.selectedBalls || 12;
                 this.send(this.EVENTS.LOBBY_READY, {
                     hostName: this.localPlayerName,
-                    joinerName: this.remotePlayerName
+                    joinerName: this.remotePlayerName,
+                    balls: currentBalls
                 });
             }
             this.emit(this.EVENTS.ROOM_JOINED, payload);
         } else if (type === this.EVENTS.LOBBY_READY) {
             this.remotePlayerName = payload.hostName || 'Host';
             this.emit(this.EVENTS.LOBBY_READY, payload);
+        } else if (type === this.EVENTS.GUEST_READY) {
+            this.emit(this.EVENTS.GUEST_READY, payload);
         } else if (type === this.EVENTS.KICK_PLAYER) {
             this.emit(this.EVENTS.KICK_PLAYER, payload);
             this.cleanup();
@@ -288,6 +293,11 @@ const MultiplayerManager = {
     }
 };
 
+if (typeof window !== 'undefined') {
+    window.MultiplayerManager = MultiplayerManager;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = MultiplayerManager;
 }
+

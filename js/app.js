@@ -12,6 +12,8 @@ class CricketGameApp {
         this.contactWindow = { start: 0, target: 0, duration: 0 };
         this.selectedPreference = 'odd';
         this.selectedBalls = 12;
+        this.guestIsReady = false; // Host-side tracking: has remote guest clicked ready
+        this.isGuestReady = false; // Guest-side tracking: has local player clicked ready
 
         this.init();
     }
@@ -143,18 +145,29 @@ class CricketGameApp {
     setupMultiplayerListeners() {
         MultiplayerManager.on(MultiplayerManager.EVENTS.ROOM_JOINED, (data) => {
             console.log('Opponent joined the room:', data.name);
-            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, MultiplayerManager.isHost, MultiplayerManager.localPlayerName, data.name, true, this.selectedBalls);
+            this.guestIsReady = false; // guest starts as not ready
+            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, MultiplayerManager.isHost, MultiplayerManager.localPlayerName, data.name, true, this.selectedBalls, false);
         });
 
         MultiplayerManager.on(MultiplayerManager.EVENTS.LOBBY_READY, (data) => {
-            console.log('Lobby ready with host:', data.hostName);
-            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, false, data.hostName, MultiplayerManager.localPlayerName, true, this.selectedBalls);
+            console.log('Lobby ready with host:', data.hostName, 'balls:', data.balls);
+            if (data.balls) {
+                this.selectedBalls = data.balls;
+            }
+            this.isGuestReady = false; // local guest starts not ready
+            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, false, data.hostName, MultiplayerManager.localPlayerName, true, this.selectedBalls, false);
+        });
+
+        MultiplayerManager.on(MultiplayerManager.EVENTS.GUEST_READY, (data) => {
+            console.log('Guest ready status changed:', data.ready);
+            this.guestIsReady = !!data.ready;
+            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, true, MultiplayerManager.localPlayerName, MultiplayerManager.remotePlayerName, true, this.selectedBalls, this.guestIsReady);
         });
 
         MultiplayerManager.on(MultiplayerManager.EVENTS.SETTINGS_SYNC, (data) => {
             console.log('Host updated overs:', data.balls);
             this.selectedBalls = data.balls;
-            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, false, MultiplayerManager.remotePlayerName, MultiplayerManager.localPlayerName, true, data.balls);
+            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, false, MultiplayerManager.remotePlayerName, MultiplayerManager.localPlayerName, true, data.balls, this.isGuestReady);
         });
 
         MultiplayerManager.on(MultiplayerManager.EVENTS.KICK_PLAYER, (data) => {
@@ -201,8 +214,10 @@ class CricketGameApp {
         });
 
         MultiplayerManager.on(MultiplayerManager.EVENTS.OPPONENT_DISCONNECTED, (data) => {
+            this.guestIsReady = false;
+            this.isGuestReady = false;
             if (MultiplayerManager.isHost && (!GameState.currentPhase || GameState.currentPhase === GameState.PHASE_MENU)) {
-                UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, true, MultiplayerManager.localPlayerName, null, false, this.selectedBalls);
+                UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, true, MultiplayerManager.localPlayerName, null, false, this.selectedBalls, false);
             } else {
                 UIController.showCommentary('⚠️ Opponent disconnected from the match!', 'penalty');
             }
@@ -271,6 +286,10 @@ class CricketGameApp {
             GameState.toss.winner = tossWinner;
             UIController.animateToss(tossWinner, 'odd');
         } else if (GameState.gameMode === GameState.MODE_ONLINE) {
+            if (MultiplayerManager.isHost && !this.guestIsReady) {
+                console.warn('Cannot start online match: challenger has not clicked ready yet.');
+                return;
+            }
             GameState.init(this.selectedBalls, 10, GameState.MODE_ONLINE);
             UIController.showScreen('toss');
 
