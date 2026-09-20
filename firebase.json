@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "odd-even-cricket-game",
     "public": ".",
     "ignore": [
       "firebase.json",
@@ -8,6 +9,12 @@
       "cricket_backend/**",
       "tests/**",
       ".agents/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ],
     "headers": [
       {
