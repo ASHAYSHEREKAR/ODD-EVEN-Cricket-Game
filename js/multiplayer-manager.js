@@ -17,6 +17,9 @@ const MultiplayerManager = {
     EVENTS: {
         ROOM_JOINED: 'ROOM_JOINED',
         LOBBY_READY: 'LOBBY_READY',
+        SETTINGS_SYNC: 'SETTINGS_SYNC',
+        KICK_PLAYER: 'KICK_PLAYER',
+        ROOM_CLOSED: 'ROOM_CLOSED',
         START_TOSS: 'START_TOSS',
         TOSS_CHOICE: 'TOSS_CHOICE',
         TOSS_RESULT: 'TOSS_RESULT',
@@ -169,8 +172,8 @@ const MultiplayerManager = {
     setupConnection(conn, onConnectedCallback, onErrorCallback) {
         this.connection = conn;
 
-        conn.on('open', () => {
-            console.log('WebRTC Connection established successfully!');
+        const onOpen = () => {
+            console.log('WebRTC Connection established successfully! isHost:', this.isHost);
             this.isConnected = true;
 
             // Send handshake
@@ -180,9 +183,16 @@ const MultiplayerManager = {
             });
 
             if (onConnectedCallback) onConnectedCallback();
-        });
+        };
+
+        if (conn.open) {
+            onOpen();
+        } else {
+            conn.on('open', onOpen);
+        }
 
         conn.on('data', (payload) => {
+            console.log('Received packet:', payload);
             this.handleIncomingData(payload);
         });
 
@@ -231,9 +241,36 @@ const MultiplayerManager = {
         } else if (type === this.EVENTS.LOBBY_READY) {
             this.remotePlayerName = payload.hostName || 'Host';
             this.emit(this.EVENTS.LOBBY_READY, payload);
+        } else if (type === this.EVENTS.KICK_PLAYER) {
+            this.emit(this.EVENTS.KICK_PLAYER, payload);
+            this.cleanup();
+        } else if (type === this.EVENTS.ROOM_CLOSED) {
+            this.emit(this.EVENTS.ROOM_CLOSED, payload);
+            this.cleanup();
         } else {
             this.emit(type, payload);
         }
+    },
+
+    kickPlayer() {
+        if (!this.isHost || !this.connection) return;
+        this.send(this.EVENTS.KICK_PLAYER, { message: 'You were removed from the room by the host.' });
+        setTimeout(() => {
+            if (this.connection) {
+                try { this.connection.close(); } catch (e) {}
+                this.connection = null;
+            }
+            this.isConnected = false;
+            this.remotePlayerName = 'Opponent';
+            this.emit(this.EVENTS.OPPONENT_DISCONNECTED, { kickedByHost: true });
+        }, 150);
+    },
+
+    closeRoom() {
+        if (this.isHost && this.connection && this.isConnected) {
+            this.send(this.EVENTS.ROOM_CLOSED, { message: 'The host has closed the room.' });
+        }
+        this.cleanup();
     },
 
     cleanup() {

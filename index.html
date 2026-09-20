@@ -10,11 +10,11 @@
     <title>Even/Odd Cricket Game — Google Doodle Style</title>
 
     <!-- Stylesheets with Cache Buster -->
-    <link rel="stylesheet" href="css/main.css?v=23.0">
-    <link rel="stylesheet" href="css/cricket-field.css?v=23.0">
-    <link rel="stylesheet" href="css/stick-figures.css?v=23.0">
-    <link rel="stylesheet" href="css/animations.css?v=23.0">
-    <link rel="stylesheet" href="css/responsive.css?v=23.0">
+    <link rel="stylesheet" href="css/main.css?v=24.0">
+    <link rel="stylesheet" href="css/cricket-field.css?v=24.0">
+    <link rel="stylesheet" href="css/stick-figures.css?v=24.0">
+    <link rel="stylesheet" href="css/animations.css?v=24.0">
+    <link rel="stylesheet" href="css/responsive.css?v=24.0">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -102,33 +102,18 @@
                     </div>
 
                     <div class="online-action-row">
-                        <button id="host-room-btn" class="btn btn-lobby-action btn-even" style="flex:1;">🏠 HOST ROOM</button>
+                        <button id="host-room-btn" class="btn btn-lobby-action btn-even" style="flex:1;">🏠 CREATE ROOM</button>
                         <button id="open-join-card-btn" class="btn btn-lobby-action btn-odd" style="flex:1;">🔗 JOIN ROOM</button>
-                    </div>
-
-                    <!-- Host Room Card -->
-                    <div id="host-room-card" class="room-lobby-card hidden">
-                        <div class="room-card-badge">ROOM HOSTED</div>
-                        <div class="room-code-display">
-                            <span class="room-code-label">SHARE CODE:</span>
-                            <div class="room-code-value" id="host-room-code">CRIC-XXXX</div>
-                            <button id="copy-room-code-btn" class="btn btn-copy-code" title="Copy Room Code">📋 COPY</button>
-                        </div>
-                        <button id="share-room-link-btn" class="btn btn-share-link" style="width:100%; margin-top:4px;">📲 SHARE INVITE LINK</button>
-                        <div class="room-status-pulse">
-                            <span class="status-pulse-dot"></span>
-                            <span id="host-status-text">Waiting for opponent to connect...</span>
-                        </div>
                     </div>
 
                     <!-- Join Room Card -->
                     <div id="join-room-card" class="room-lobby-card hidden">
-                        <div class="room-card-badge">JOIN ONLINE MATCH</div>
+                        <div class="room-card-badge">ENTER ROOM CODE</div>
                         <div class="name-input-box join-input-box">
                             <span class="input-avatar">🔑</span>
                             <input type="text" id="join-room-code-input" placeholder="5-LETTER CODE" maxlength="5" autocomplete="off" style="text-transform:uppercase; text-align:center; font-weight:900; letter-spacing:3px;">
                         </div>
-                        <button id="join-room-confirm-btn" class="btn btn-primary" style="width:100%; margin-top:8px;">⚡ CONNECT & PLAY</button>
+                        <button id="join-room-confirm-btn" class="btn btn-primary" style="width:100%; margin-top:8px;">⚡ JOIN MATCH</button>
                         <div id="join-status-text" class="join-status-msg"></div>
                     </div>
                 </div>
@@ -171,6 +156,11 @@
                            • Click/Tap <strong>DEFEND</strong> or press <strong>D</strong> for a safe dot ball.<br>
                            • Press <strong>P</strong> or tap <strong>⏸️</strong> to pause the match.</p>
                     </div>
+
+                    <div class="instruction-item">
+                        <h3>🏆 Match Result</h3>
+                        <p>Highest score after both innings wins! Ties occur if runs are strictly identical.</p>
+                    </div>
                 </div>
                 <button id="back-from-help-btn" class="btn btn-primary">BACK TO MENU</button>
             </div>
@@ -187,6 +177,82 @@
                     </div>
                 </div>
                 <button id="back-from-settings-btn" class="btn btn-primary">BACK</button>
+            </div>
+        </div>
+
+        <!-- Dedicated Online Multiplayer Match Lobby Room Screen -->
+        <div id="online-room-screen" class="screen">
+            <div class="menu-content online-room-content">
+                <div class="online-room-header">
+                    <div class="room-card-badge" id="online-room-role-badge">👑 HOST LOBBY</div>
+                    <h2 class="online-room-title">MATCH LOBBY</h2>
+                </div>
+
+                <!-- Room Code & Sharing Card -->
+                <div class="room-share-card">
+                    <span class="room-code-label">ROOM ID</span>
+                    <div class="room-code-value" id="room-screen-code">CRIC-XXXX</div>
+                    <div class="room-share-actions">
+                        <button id="room-screen-copy-btn" class="btn btn-copy-code">📋 COPY CODE</button>
+                        <button id="room-screen-share-btn" class="btn btn-share-link">📲 SHARE INVITE</button>
+                    </div>
+                </div>
+
+                <!-- Players Roster Card -->
+                <div class="room-roster-card">
+                    <div class="roster-header">PLAYERS IN ROOM</div>
+                    
+                    <!-- Host Slot -->
+                    <div class="roster-slot host-slot">
+                        <div class="slot-avatar">👑</div>
+                        <div class="slot-info">
+                            <span class="slot-name" id="room-host-name">Host Player</span>
+                            <span class="slot-role-tag host-tag">HOST</span>
+                        </div>
+                        <div class="slot-status-badge ready-badge">READY ✅</div>
+                    </div>
+
+                    <div class="roster-vs-divider">VS</div>
+
+                    <!-- Opponent Slot -->
+                    <div class="roster-slot guest-slot" id="room-guest-slot">
+                        <div class="slot-avatar" id="room-guest-avatar">⏳</div>
+                        <div class="slot-info">
+                            <span class="slot-name" id="room-guest-name">Waiting for opponent...</span>
+                            <span class="slot-role-tag guest-tag" id="room-guest-role">CHALLENGER</span>
+                        </div>
+                        <div class="room-guest-controls" id="room-guest-action-area">
+                            <span class="slot-status-badge waiting-badge" id="room-guest-status">WAITING</span>
+                            <button id="room-kick-guest-btn" class="btn btn-kick hidden" title="Kick player from room">❌ KICK</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Overs Settings (Configured by Host) -->
+                <div class="room-settings-card" id="room-match-settings">
+                    <div class="settings-card-header">
+                        <span class="settings-card-label">MATCH OVERS (BALLS)</span>
+                        <span class="settings-authority-badge" id="room-settings-authority">CONFIGURED BY HOST</span>
+                    </div>
+                    <div class="ball-count-buttons" id="room-overs-selector">
+                        <button class="btn btn-ball-count" data-balls="6">6 Balls (1 Over)</button>
+                        <button class="btn btn-ball-count active" data-balls="12">12 Balls (2 Overs)</button>
+                        <button class="btn btn-ball-count" data-balls="18">18 Balls (3 Overs)</button>
+                        <button class="btn btn-ball-count" data-balls="24">24 Balls (4 Overs)</button>
+                    </div>
+                </div>
+
+                <!-- Room Status Pulse -->
+                <div class="room-lobby-status-banner" id="room-lobby-status-text">
+                    <span class="status-pulse-dot"></span>
+                    <span id="room-status-desc">Share code with a friend to join...</span>
+                </div>
+
+                <!-- Lobby Action Buttons -->
+                <div class="menu-buttons">
+                    <button id="room-start-match-btn" class="btn btn-primary btn-pulse" disabled>⏳ WAITING FOR OPPONENT...</button>
+                    <button id="room-leave-btn" class="btn btn-secondary">🚪 LEAVE ROOM</button>
+                </div>
             </div>
         </div>
 
@@ -418,17 +484,17 @@
     </div>
 
     <!-- Local PeerJS WebRTC Library -->
-    <script src="js/peerjs.min.js?v=23.0"></script>
+    <script src="js/peerjs.min.js?v=24.0"></script>
 
     <!-- JavaScript Files with Cache Buster -->
-    <script src="js/utils.js?v=23.0"></script>
-    <script src="js/multiplayer-manager.js?v=23.0"></script>
-    <script src="js/game-state.js?v=23.0"></script>
-    <script src="js/game-logic.js?v=23.0"></script>
-    <script src="js/canvas-renderer.js?v=23.0"></script>
-    <script src="js/animation-controller.js?v=23.0"></script>
-    <script src="js/ui-controller.js?v=23.0"></script>
-    <script src="js/app.js?v=23.0"></script>
+    <script src="js/utils.js?v=24.0"></script>
+    <script src="js/multiplayer-manager.js?v=24.0"></script>
+    <script src="js/game-state.js?v=24.0"></script>
+    <script src="js/game-logic.js?v=24.0"></script>
+    <script src="js/canvas-renderer.js?v=24.0"></script>
+    <script src="js/animation-controller.js?v=24.0"></script>
+    <script src="js/ui-controller.js?v=24.0"></script>
+    <script src="js/app.js?v=24.0"></script>
 
     <!-- Auto-purge any stale service worker caches -->
     <script>

@@ -51,74 +51,38 @@ const UIController = {
     setupOnlineLobby() {
         const hostBtn = document.getElementById('host-room-btn');
         const openJoinBtn = document.getElementById('open-join-card-btn');
-        const hostCard = document.getElementById('host-room-card');
         const joinCard = document.getElementById('join-room-card');
-        const copyBtn = document.getElementById('copy-room-code-btn');
-        const shareBtn = document.getElementById('share-room-link-btn');
-        const hostCodeElem = document.getElementById('host-room-code');
-        const hostStatusElem = document.getElementById('host-status-text');
         const joinInput = document.getElementById('join-room-code-input');
         const joinConfirmBtn = document.getElementById('join-room-confirm-btn');
         const joinStatusElem = document.getElementById('join-status-text');
 
-        if (copyBtn) {
-            copyBtn.addEventListener('click', () => {
-                const code = MultiplayerManager.roomCode;
-                if (code) {
-                    navigator.clipboard?.writeText(code);
-                    copyBtn.textContent = '✅ COPIED!';
-                    setTimeout(() => copyBtn.textContent = '📋 COPY', 2000);
-                }
-            });
-        }
-
-        if (shareBtn) {
-            shareBtn.addEventListener('click', async () => {
-                const code = MultiplayerManager.roomCode;
-                if (!code) return;
-                const shareUrl = `${window.location.origin}${window.location.pathname}?room=${code}`;
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: 'Even/Odd Cricket Match',
-                            text: `🏏 Play an Online Even/Odd Cricket Match with me! Room Code: ${code}`,
-                            url: shareUrl
-                        });
-                        return;
-                    } catch (e) {
-                        // Fallback to clipboard
-                    }
-                }
-                if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(shareUrl);
-                    shareBtn.textContent = '✅ INVITE LINK COPIED!';
-                    setTimeout(() => shareBtn.textContent = '📲 SHARE INVITE LINK', 2500);
-                }
-            });
-        }
-
         if (hostBtn) {
             hostBtn.addEventListener('click', () => {
-                Utils.show(hostCard);
-                Utils.hide(joinCard);
                 const nameInput = document.getElementById('online-name-input');
                 const pName = (nameInput?.value || '').trim() || 'Player 1';
                 GameState.setStoredPlayerName(pName);
                 GameState.localPlayerRole = 'p1';
+                const balls = window.cricketGameApp?.selectedBalls || 12;
+                GameState.init(balls, 10, GameState.MODE_ONLINE);
 
-                hostStatusElem.textContent = 'Initializing room...';
+                hostBtn.disabled = true;
+                hostBtn.textContent = '⌛ CREATING...';
+
                 MultiplayerManager.hostRoom(pName, (code) => {
-                    hostCodeElem.textContent = code;
-                    hostStatusElem.textContent = '⏳ Waiting for opponent to join...';
+                    hostBtn.disabled = false;
+                    hostBtn.textContent = '🏠 CREATE ROOM';
+                    UIController.showScreen('onlineRoom');
+                    UIController.updateOnlineRoomUI(code, true, pName, null, false, balls);
                 }, (err) => {
-                    hostStatusElem.textContent = `❌ ${err}`;
+                    hostBtn.disabled = false;
+                    hostBtn.textContent = '🏠 CREATE ROOM';
+                    alert(`Could not create room: ${err}`);
                 });
             });
         }
 
         if (openJoinBtn) {
             openJoinBtn.addEventListener('click', () => {
-                Utils.hide(hostCard);
                 Utils.show(joinCard);
                 if (joinInput) joinInput.focus();
             });
@@ -134,16 +98,113 @@ const UIController = {
                 const nameInput = document.getElementById('online-name-input');
                 const pName = (nameInput?.value || '').trim() || 'Player 2';
                 GameState.localPlayerRole = 'p2';
+                GameState.init(12, 10, GameState.MODE_ONLINE);
 
-                if (joinStatusElem) joinStatusElem.textContent = 'Connecting to host...';
+                if (joinStatusElem) joinStatusElem.textContent = 'Connecting to host room...';
                 joinConfirmBtn.disabled = true;
 
                 MultiplayerManager.joinRoom(code, pName, () => {
-                    if (joinStatusElem) joinStatusElem.textContent = '✅ Connected! Starting match...';
+                    joinConfirmBtn.disabled = false;
+                    if (joinStatusElem) joinStatusElem.textContent = '';
+                    UIController.showScreen('onlineRoom');
+                    UIController.updateOnlineRoomUI(code, false, MultiplayerManager.remotePlayerName || 'Host', pName, true, 12);
                 }, (err) => {
                     joinConfirmBtn.disabled = false;
                     if (joinStatusElem) joinStatusElem.textContent = `❌ ${err}`;
                 });
+            });
+        }
+
+        this.setupOnlineRoomScreenListeners();
+    },
+
+    setupOnlineRoomScreenListeners() {
+        const copyBtn = document.getElementById('room-screen-copy-btn');
+        const shareBtn = document.getElementById('room-screen-share-btn');
+        const kickBtn = document.getElementById('room-kick-guest-btn');
+        const leaveBtn = document.getElementById('room-leave-btn');
+        const startBtn = document.getElementById('room-start-match-btn');
+        const oversSelector = document.getElementById('room-overs-selector');
+
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                const code = MultiplayerManager.roomCode;
+                if (code) {
+                    navigator.clipboard?.writeText(code);
+                    copyBtn.textContent = '✅ COPIED!';
+                    setTimeout(() => copyBtn.textContent = '📋 COPY CODE', 2000);
+                }
+            });
+        }
+
+        if (shareBtn) {
+            shareBtn.addEventListener('click', async () => {
+                const code = MultiplayerManager.roomCode;
+                if (!code) return;
+                const shareUrl = `${window.location.origin}${window.location.pathname}?room=${code}`;
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'Even/Odd Cricket Match Lobby',
+                            text: `🏏 Join my Even/Odd Cricket Match room! Room ID: ${code}`,
+                            url: shareUrl
+                        });
+                        return;
+                    } catch (e) {
+                        // fallback to clipboard
+                    }
+                }
+                if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(shareUrl);
+                    shareBtn.textContent = '✅ LINK COPIED!';
+                    setTimeout(() => shareBtn.textContent = '📲 SHARE INVITE', 2500);
+                }
+            });
+        }
+
+        if (kickBtn) {
+            kickBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to kick this player from the room?')) {
+                    MultiplayerManager.kickPlayer();
+                }
+            });
+        }
+
+        if (leaveBtn) {
+            leaveBtn.addEventListener('click', () => {
+                const isHost = MultiplayerManager.isHost;
+                const msg = isHost ? 'Leaving will terminate and close this room for everyone. Continue?' : 'Leave this match room?';
+                if (confirm(msg)) {
+                    MultiplayerManager.closeRoom();
+                    UIController.showScreen('menu');
+                }
+            });
+        }
+
+        if (oversSelector) {
+            oversSelector.querySelectorAll('.btn-ball-count').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (!MultiplayerManager.isHost) return;
+                    const balls = parseInt(e.target.dataset.balls) || 12;
+                    if (window.cricketGameApp) {
+                        window.cricketGameApp.selectedBalls = balls;
+                    }
+                    oversSelector.querySelectorAll('.btn-ball-count').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    if (MultiplayerManager.isConnected) {
+                        MultiplayerManager.send(MultiplayerManager.EVENTS.SETTINGS_SYNC, { balls });
+                    }
+                });
+            });
+        }
+
+        if (startBtn) {
+            startBtn.addEventListener('click', () => {
+                if (!MultiplayerManager.isHost || !MultiplayerManager.isConnected) return;
+                if (window.cricketGameApp) {
+                    window.cricketGameApp.startTossSequence();
+                }
             });
         }
     },
@@ -199,6 +260,7 @@ const UIController = {
             menu: document.getElementById('menu-screen'),
             howToPlay: document.getElementById('how-to-play-screen'),
             settings: document.getElementById('settings-screen'),
+            onlineRoom: document.getElementById('online-room-screen'),
             toss: document.getElementById('toss-screen'),
             inningsBreak: document.getElementById('innings-break-screen'),
             game: document.getElementById('game-screen'),
@@ -221,6 +283,83 @@ const UIController = {
                 setTimeout(() => {
                     CanvasRenderer.resize();
                 }, 30);
+            }
+        }
+    },
+
+    /**
+     * Updates Dedicated Online Room UI
+     */
+    updateOnlineRoomUI(roomCode, isHost, hostName, guestName, isGuestConnected, selectedBalls = 12) {
+        const codeElem = document.getElementById('room-screen-code');
+        const roleBadge = document.getElementById('online-room-role-badge');
+        const hostNameElem = document.getElementById('room-host-name');
+        const guestNameElem = document.getElementById('room-guest-name');
+        const guestAvatar = document.getElementById('room-guest-avatar');
+        const guestStatus = document.getElementById('room-guest-status');
+        const kickBtn = document.getElementById('room-kick-guest-btn');
+        const startBtn = document.getElementById('room-start-match-btn');
+        const statusDesc = document.getElementById('room-status-desc');
+        const oversSelector = document.getElementById('room-overs-selector');
+        const authorityBadge = document.getElementById('room-settings-authority');
+
+        if (codeElem) codeElem.textContent = roomCode || 'CRIC-XXXX';
+        if (roleBadge) roleBadge.textContent = isHost ? '👑 HOST LOBBY' : '🎮 CHALLENGER LOBBY';
+        if (hostNameElem) hostNameElem.textContent = hostName || 'Host';
+
+        if (authorityBadge) {
+            authorityBadge.textContent = isHost ? 'CONFIGURED BY YOU (HOST)' : `CONFIGURED BY ${(hostName || 'HOST').toUpperCase()}`;
+        }
+
+        if (oversSelector) {
+            const btns = oversSelector.querySelectorAll('.btn-ball-count');
+            btns.forEach(btn => {
+                const balls = parseInt(btn.dataset.balls);
+                btn.classList.toggle('active', balls === selectedBalls);
+                btn.style.pointerEvents = isHost ? 'auto' : 'none';
+                btn.style.opacity = isHost ? '1' : (balls === selectedBalls ? '1' : '0.5');
+            });
+        }
+
+        if (isGuestConnected) {
+            if (guestNameElem) guestNameElem.textContent = guestName || 'Player 2';
+            if (guestAvatar) guestAvatar.textContent = '🎮';
+            if (guestStatus) {
+                guestStatus.className = 'slot-status-badge ready-badge';
+                guestStatus.textContent = 'READY ✅';
+            }
+            if (kickBtn) {
+                if (isHost) {
+                    Utils.show(kickBtn);
+                } else {
+                    Utils.hide(kickBtn);
+                }
+            }
+            if (statusDesc) statusDesc.textContent = `${guestName || 'Opponent'} is in the room! Ready to play.`;
+            if (startBtn) {
+                if (isHost) {
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🚀 START COIN TOSS';
+                    startBtn.classList.add('btn-pulse');
+                } else {
+                    startBtn.disabled = true;
+                    startBtn.textContent = '⏳ WAITING FOR HOST TO START...';
+                    startBtn.classList.remove('btn-pulse');
+                }
+            }
+        } else {
+            if (guestNameElem) guestNameElem.textContent = 'Waiting for opponent...';
+            if (guestAvatar) guestAvatar.textContent = '⏳';
+            if (guestStatus) {
+                guestStatus.className = 'slot-status-badge waiting-badge';
+                guestStatus.textContent = 'WAITING';
+            }
+            if (kickBtn) Utils.hide(kickBtn);
+            if (statusDesc) statusDesc.textContent = 'Share the Room Code or Invite Link with a friend...';
+            if (startBtn) {
+                startBtn.disabled = true;
+                startBtn.textContent = isHost ? '⏳ WAITING FOR OPPONENT TO JOIN...' : '⏳ CONNECTING TO HOST...';
+                startBtn.classList.remove('btn-pulse');
             }
         }
     },

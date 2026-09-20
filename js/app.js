@@ -143,12 +143,28 @@ class CricketGameApp {
     setupMultiplayerListeners() {
         MultiplayerManager.on(MultiplayerManager.EVENTS.ROOM_JOINED, (data) => {
             console.log('Opponent joined the room:', data.name);
-            UIController.showCommentary(`Opponent "${data.name}" connected! Starting match...`);
-            setTimeout(() => {
-                if (MultiplayerManager.isHost) {
-                    this.startTossSequence();
-                }
-            }, 600);
+            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, MultiplayerManager.isHost, MultiplayerManager.localPlayerName, data.name, true, this.selectedBalls);
+        });
+
+        MultiplayerManager.on(MultiplayerManager.EVENTS.LOBBY_READY, (data) => {
+            console.log('Lobby ready with host:', data.hostName);
+            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, false, data.hostName, MultiplayerManager.localPlayerName, true, this.selectedBalls);
+        });
+
+        MultiplayerManager.on(MultiplayerManager.EVENTS.SETTINGS_SYNC, (data) => {
+            console.log('Host updated overs:', data.balls);
+            this.selectedBalls = data.balls;
+            UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, false, MultiplayerManager.remotePlayerName, MultiplayerManager.localPlayerName, true, data.balls);
+        });
+
+        MultiplayerManager.on(MultiplayerManager.EVENTS.KICK_PLAYER, (data) => {
+            alert(data.message || 'You have been removed from the room by the host.');
+            UIController.showScreen('menu');
+        });
+
+        MultiplayerManager.on(MultiplayerManager.EVENTS.ROOM_CLOSED, (data) => {
+            alert(data.message || 'The host has closed the room.');
+            UIController.showScreen('menu');
         });
 
         MultiplayerManager.on(MultiplayerManager.EVENTS.START_TOSS, (data) => {
@@ -184,8 +200,12 @@ class CricketGameApp {
             this.launchInnings2();
         });
 
-        MultiplayerManager.on(MultiplayerManager.EVENTS.OPPONENT_DISCONNECTED, () => {
-            UIController.showCommentary('⚠️ Opponent disconnected from the match!', 'penalty');
+        MultiplayerManager.on(MultiplayerManager.EVENTS.OPPONENT_DISCONNECTED, (data) => {
+            if (MultiplayerManager.isHost && (!GameState.currentPhase || GameState.currentPhase === GameState.PHASE_MENU)) {
+                UIController.updateOnlineRoomUI(MultiplayerManager.roomCode, true, MultiplayerManager.localPlayerName, null, false, this.selectedBalls);
+            } else {
+                UIController.showCommentary('⚠️ Opponent disconnected from the match!', 'penalty');
+            }
         });
     }
 
