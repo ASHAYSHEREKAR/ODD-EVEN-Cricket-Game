@@ -39,3 +39,9 @@ Thumbs.db
 
 # Scratch / Temp
 scratch/
+
+# Firebase & Cloud Credentials
+*-adminsdk-*.json
+*service-account*.json
+credentials.json
+firebase-adminsdk*.json
