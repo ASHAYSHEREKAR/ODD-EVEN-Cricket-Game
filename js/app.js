@@ -514,7 +514,19 @@ class CricketGameApp {
     }
 }
 
-// Initialize application on DOM load
-document.addEventListener('DOMContentLoaded', () => {
-    window.cricketGameApp = new CricketGameApp();
-});
+// Initialize application safely
+function bootstrapCricketApp() {
+    if (!window.cricketGameApp) {
+        try {
+            window.cricketGameApp = new CricketGameApp();
+        } catch (e) {
+            console.error('Error initializing CricketGameApp:', e);
+        }
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrapCricketApp);
+} else {
+    bootstrapCricketApp();
+}

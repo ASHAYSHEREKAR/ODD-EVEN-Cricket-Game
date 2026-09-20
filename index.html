@@ -3,18 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="Even/Odd Strategic Google Doodle Inspired Cricket Game">
     <meta name="theme-color" content="#1b5e20">
 
     <title>Even/Odd Cricket Game — Google Doodle Style</title>
 
-    <!-- Stylesheets with Cache Buster -->
-    <link rel="stylesheet" href="css/main.css?v=24.0">
-    <link rel="stylesheet" href="css/cricket-field.css?v=24.0">
-    <link rel="stylesheet" href="css/stick-figures.css?v=24.0">
-    <link rel="stylesheet" href="css/animations.css?v=24.0">
-    <link rel="stylesheet" href="css/responsive.css?v=24.0">
+    <!-- Immediate cache & legacy service worker purge for mobile browsers -->
+    <script>
+        (function() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    for (var i = 0; i < regs.length; i++) regs[i].unregister();
+                }).catch(function(){});
+            }
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (var i = 0; i < names.length; i++) caches.delete(names[i]);
+                }).catch(function(){});
+            }
+        })();
+    </script>
+
+    <!-- Stylesheets with Cache Buster v25.0 -->
+    <link rel="stylesheet" href="css/main.css?v=25.0">
+    <link rel="stylesheet" href="css/cricket-field.css?v=25.0">
+    <link rel="stylesheet" href="css/stick-figures.css?v=25.0">
+    <link rel="stylesheet" href="css/animations.css?v=25.0">
+    <link rel="stylesheet" href="css/responsive.css?v=25.0">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -483,39 +499,38 @@
 
     </div>
 
-    <!-- Local PeerJS WebRTC Library -->
-    <script src="js/peerjs.min.js?v=24.0"></script>
+    <!-- Local PeerJS WebRTC Library with safe fallback -->
+    <script src="js/peerjs.min.js?v=25.0" onerror="console.warn('PeerJS library failed to load; multiplayer will use fallback');"></script>
 
-    <!-- JavaScript Files with Cache Buster -->
-    <script src="js/utils.js?v=24.0"></script>
-    <script src="js/multiplayer-manager.js?v=24.0"></script>
-    <script src="js/game-state.js?v=24.0"></script>
-    <script src="js/game-logic.js?v=24.0"></script>
-    <script src="js/canvas-renderer.js?v=24.0"></script>
-    <script src="js/animation-controller.js?v=24.0"></script>
-    <script src="js/ui-controller.js?v=24.0"></script>
-    <script src="js/app.js?v=24.0"></script>
+    <!-- JavaScript Files with Cache Buster v25.0 -->
+    <script src="js/utils.js?v=25.0"></script>
+    <script src="js/multiplayer-manager.js?v=25.0"></script>
+    <script src="js/game-state.js?v=25.0"></script>
+    <script src="js/game-logic.js?v=25.0"></script>
+    <script src="js/canvas-renderer.js?v=25.0"></script>
+    <script src="js/animation-controller.js?v=25.0"></script>
+    <script src="js/ui-controller.js?v=25.0"></script>
+    <script src="js/app.js?v=25.0"></script>
 
-    <!-- Auto-purge any stale service worker caches -->
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for (let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-            if ('caches' in window) {
-                caches.keys().then(names => {
-                    for (let name of names) caches.delete(name);
-                });
-            }
-        }
-        // Fallback auto-init for CanvasRenderer
+        // Fallback auto-init for CanvasRenderer and menu screen visibility
         window.addEventListener('load', () => {
             const canvas = document.getElementById('game-canvas');
             if (canvas && window.CanvasRenderer && !window.CanvasRenderer.isRunning) {
                 window.CanvasRenderer.init(canvas);
             }
+            // Double check that at least one screen is visible
+            setTimeout(() => {
+                const active = document.querySelector('.screen.active');
+                if (!active) {
+                    const menu = document.getElementById('menu-screen');
+                    if (menu) {
+                        menu.classList.add('active');
+                        menu.style.display = 'flex';
+                        menu.style.opacity = '1';
+                    }
+                }
+            }, 100);
         });
     </script>
 </body>
