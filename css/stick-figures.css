@@ -1,0 +1,394 @@
+/* ===================================
+   CHARACTERS & STICK / DOODLE FIGURES
+   Google Doodle Style Batsman, Bowler & Snails
+   =================================== */
+
+.stick-figure {
+    position: absolute;
+    z-index: 15;
+    pointer-events: none;
+}
+
+/* ===================================
+   BATSMAN (At Bottom Crease)
+   =================================== */
+.batsman {
+    bottom: 125px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 90px;
+    display: block;
+}
+
+/* Cricket Insect Antennae */
+.batsman-head .antenna {
+    position: absolute;
+    top: -12px;
+    width: 2px;
+    height: 14px;
+    background: #0284c7;
+    transform-origin: bottom center;
+}
+.batsman-head .antenna.left {
+    left: 20px;
+    transform: rotate(-25deg);
+}
+.batsman-head .antenna.right {
+    right: 20px;
+    transform: rotate(25deg);
+}
+
+/* Blue Cricket Helmet */
+.batsman-helmet {
+    position: absolute;
+    top: 2px;
+    left: 17px;
+    width: 26px;
+    height: 24px;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-radius: 50% 50% 30% 30%;
+    border: 2px solid #0f172a;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+    z-index: 5;
+}
+
+.helmet-visor {
+    position: absolute;
+    bottom: 2px;
+    right: -4px;
+    width: 14px;
+    height: 8px;
+    border-top: 2px solid #e2e8f0;
+    border-bottom: 2px solid #e2e8f0;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 0 4px 4px 0;
+}
+
+/* Head & Cute Eyes */
+.batsman-head {
+    position: absolute;
+    top: 6px;
+    left: 20px;
+    width: 20px;
+    height: 20px;
+    background: #7dd3fc;
+    border-radius: 50%;
+}
+
+.doodle-eye {
+    position: absolute;
+    top: 6px;
+    width: 4px;
+    height: 4px;
+    background: #0f172a;
+    border-radius: 50%;
+    box-shadow: 0 0 1px #fff;
+}
+.doodle-eye.left { left: 4px; }
+.doodle-eye.right { right: 4px; }
+
+/* White Jersey / Body */
+.batsman-body {
+    position: absolute;
+    top: 24px;
+    left: 19px;
+    width: 22px;
+    height: 32px;
+    background: #ffffff;
+    border-radius: 8px 8px 4px 4px;
+    border: 2px solid #0f172a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 4;
+}
+
+.jersey-collar {
+    position: absolute;
+    top: 0;
+    left: 4px;
+    width: 10px;
+    height: 6px;
+    border-bottom: 2px solid #0284c7;
+    border-left: 2px solid #0284c7;
+    border-right: 2px solid #0284c7;
+}
+
+/* Arms & Gloves */
+.batsman-arm-left {
+    position: absolute;
+    top: 26px;
+    left: 10px;
+    width: 12px;
+    height: 22px;
+    border-left: 4px solid #ffffff;
+    border-bottom: 4px solid #ffffff;
+    border-radius: 0 0 0 8px;
+    z-index: 6;
+}
+
+.batsman-arm-right {
+    position: absolute;
+    top: 26px;
+    right: 8px;
+    width: 16px;
+    height: 24px;
+    border-right: 4px solid #ffffff;
+    border-bottom: 4px solid #ffffff;
+    border-radius: 0 0 8px 0;
+    z-index: 6;
+}
+
+.batting-glove {
+    position: absolute;
+    bottom: -4px;
+    width: 8px;
+    height: 8px;
+    background: #0284c7;
+    border-radius: 50%;
+    border: 1px solid #0f172a;
+}
+
+/* Cricket Bat */
+.cricket-bat {
+    position: absolute;
+    top: 10px;
+    right: -8px;
+    width: 12px;
+    height: 52px;
+    transform-origin: top center;
+    transform: rotate(28deg);
+    transition: transform 0.12s cubic-bezier(0.1, 0.9, 0.2, 1);
+    z-index: 8;
+}
+
+.bat-handle {
+    position: absolute;
+    top: 0;
+    left: 4px;
+    width: 4px;
+    height: 14px;
+    background: #ffffff;
+    border: 1px solid #0f172a;
+    border-radius: 2px 2px 0 0;
+}
+
+.bat-blade {
+    position: absolute;
+    top: 13px;
+    left: 0;
+    width: 12px;
+    height: 38px;
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    border-radius: 2px 2px 6px 6px;
+    border: 2px solid #78350f;
+    box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* White Batting Pads */
+.batsman-legs {
+    position: absolute;
+    bottom: 0;
+    left: 17px;
+    width: 26px;
+    height: 36px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 3;
+}
+
+.pad {
+    width: 11px;
+    height: 100%;
+    background: linear-gradient(90deg, #ffffff 0%, #f1f5f9 60%, #cbd5e1 100%);
+    border: 2px solid #0f172a;
+    border-radius: 4px 4px 6px 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Batsman Running Animation */
+.batsman.running {
+    animation: batsmanRun 0.6s infinite alternate ease-in-out;
+}
+
+@keyframes batsmanRun {
+    0% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+    100% { transform: translateX(-50%) translateY(-14px) rotate(4deg); }
+}
+
+/* ===================================
+   BOWLER (At Top Crease)
+   =================================== */
+.bowler {
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.85);
+    width: 50px;
+    height: 80px;
+    display: block;
+}
+
+.bowler-cap {
+    position: absolute;
+    top: 0;
+    left: 15px;
+    width: 20px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 10px 10px 0 0;
+    border: 2px solid #0f172a;
+    z-index: 5;
+}
+
+.bowler-cap::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -4px;
+    width: 8px;
+    height: 3px;
+    background: #ef4444;
+    border-radius: 0 2px 2px 0;
+    border: 1px solid #0f172a;
+}
+
+.bowler-head {
+    position: absolute;
+    top: 6px;
+    left: 16px;
+    width: 18px;
+    height: 18px;
+    background: #86efac;
+    border-radius: 50%;
+    border: 2px solid #0f172a;
+}
+
+.bowler-body {
+    position: absolute;
+    top: 22px;
+    left: 17px;
+    width: 16px;
+    height: 26px;
+    background: #ef4444;
+    border-radius: 6px;
+    border: 2px solid #0f172a;
+}
+
+.bowler-arm-left {
+    position: absolute;
+    top: 24px;
+    left: 8px;
+    width: 10px;
+    height: 18px;
+    border-left: 3px solid #0f172a;
+    border-bottom: 3px solid #0f172a;
+}
+
+.bowler-arm-right {
+    position: absolute;
+    top: 24px;
+    right: 4px;
+    width: 12px;
+    height: 30px;
+    border-right: 4px solid #ef4444;
+    border-radius: 0 4px 4px 0;
+    transform-origin: top center;
+    z-index: 6;
+}
+
+.bowling-hand-ball {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    width: 12px;
+    height: 12px;
+    background: #dc2626;
+    border-radius: 50%;
+    border: 1px solid #7f1d1d;
+}
+
+.bowler.bowling-action .bowler-arm-right {
+    animation: bowlerWindmill 0.55s ease-in-out;
+}
+
+@keyframes bowlerWindmill {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-180deg); }
+    100% { transform: rotate(-360deg); }
+}
+
+.bowler-legs {
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    width: 18px;
+    height: 32px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.bowler-legs .leg {
+    width: 6px;
+    height: 100%;
+    background: #ffffff;
+    border: 2px solid #0f172a;
+    border-radius: 2px;
+}
+
+/* ===================================
+   SNAIL FIELDERS
+   =================================== */
+.fielder {
+    position: absolute;
+    width: 32px;
+    height: 26px;
+    z-index: 8;
+    display: flex;
+    align-items: flex-end;
+}
+
+.snail-body {
+    width: 28px;
+    height: 10px;
+    background: #fde047;
+    border-radius: 10px 10px 4px 4px;
+    border: 2px solid #0f172a;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.snail-body::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 2px;
+    width: 6px;
+    height: 8px;
+    background: #fde047;
+    border-radius: 4px;
+    border: 1px solid #0f172a;
+}
+
+.snail-shell {
+    position: absolute;
+    bottom: 4px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #0f172a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.shell-pink { background: radial-gradient(circle at 35% 35%, #f472b6 0%, #db2777 80%); }
+.shell-yellow { background: radial-gradient(circle at 35% 35%, #fde047 0%, #ca8a04 80%); }
+.shell-cyan { background: radial-gradient(circle at 35% 35%, #38bdf8 0%, #0284c7 80%); }
+.shell-purple { background: radial-gradient(circle at 35% 35%, #c084fc 0%, #7e22ce 80%); }
+.shell-orange { background: radial-gradient(circle at 35% 35%, #fb923c 0%, #ea580c 80%); }
+
+/* Positions */
+.fielder-deep-midwicket { top: 110px; left: 25px; transform: scale(0.9); }
+.fielder-deep-cover { top: 115px; right: 30px; transform: scale(0.9); }
+.fielder-point { top: 220px; left: 18px; transform: scale(1); }
+.fielder-square-leg { top: 235px; right: 22px; transform: scale(1); }
+.fielder-mid-on { bottom: 100px; right: 55px; transform: scale(1.1); }

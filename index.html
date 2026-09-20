@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Even/Odd Strategic Google Doodle Inspired Cricket Game">
+    <meta name="theme-color" content="#1b5e20">
+
+    <title>Even/Odd Cricket Game — Google Doodle Style</title>
+
+    <!-- Stylesheets with Cache Buster -->
+    <link rel="stylesheet" href="css/main.css?v=15.0">
+    <link rel="stylesheet" href="css/cricket-field.css?v=15.0">
+    <link rel="stylesheet" href="css/stick-figures.css?v=15.0">
+    <link rel="stylesheet" href="css/animations.css?v=15.0">
+    <link rel="stylesheet" href="css/responsive.css?v=15.0">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Bungee&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Game Container -->
+    <div id="game-container">
+
+        <!-- Main Menu Screen -->
+        <div id="menu-screen" class="screen active">
+            <div class="menu-content">
+                <div class="game-logo-badge">🏏 STRATEGY CRICKET</div>
+                <h1 class="game-title">EVEN / ODD<br><span class="highlight-title">CRICKET</span></h1>
+                <p class="game-subtitle">The Strategic Ball-Bank Cricket Game</p>
+
+                <!-- High Score Banner -->
+                <div class="high-score-card" id="menu-high-score-card">
+                    <div class="trophy-row">
+                        <span class="trophy-emoji">🏆</span>
+                        <div class="high-score-text">
+                            <span class="high-score-label">ALL-TIME HIGH SCORE</span>
+                            <span class="high-score-value" id="menu-high-score-val">0 Runs</span>
+                        </div>
+                    </div>
+                    <div class="high-score-holder" id="menu-high-score-holder">Held by: Nobody</div>
+                </div>
+
+                <!-- Game Mode Selector -->
+                <div class="mode-selection-section">
+                    <label class="name-input-label">SELECT GAME MODE</label>
+                    <div class="mode-tabs">
+                        <button class="mode-tab active" data-mode="single" id="mode-tab-single">
+                            <span class="mode-icon">🤖</span>
+                            <span class="mode-title">VS AI</span>
+                        </button>
+                        <button class="mode-tab" data-mode="local2p" id="mode-tab-local2p">
+                            <span class="mode-icon">👥</span>
+                            <span class="mode-title">LOCAL 2P</span>
+                        </button>
+                        <button class="mode-tab" data-mode="online" id="mode-tab-online">
+                            <span class="mode-icon">🌐</span>
+                            <span class="mode-title">ONLINE</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Single Player Name Input -->
+                <div class="player-name-section" id="section-single-name">
+                    <label for="player-name-input" class="name-input-label">ENTER YOUR NAME</label>
+                    <div class="name-input-box">
+                        <span class="input-avatar">🏏</span>
+                        <input type="text" id="player-name-input" placeholder="Your Name..." maxlength="14" autocomplete="off" spellcheck="false">
+                    </div>
+                </div>
+
+                <!-- Local 2-Player Names Input -->
+                <div class="player-name-section hidden" id="section-local-names">
+                    <div class="dual-name-row">
+                        <div class="dual-name-col">
+                            <label for="p1-name-input" class="name-input-label">PLAYER 1 NAME</label>
+                            <div class="name-input-box">
+                                <span class="input-avatar">🧢</span>
+                                <input type="text" id="p1-name-input" placeholder="Player 1" maxlength="12" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="dual-name-col">
+                            <label for="p2-name-input" class="name-input-label">PLAYER 2 NAME</label>
+                            <div class="name-input-box">
+                                <span class="input-avatar">🏏</span>
+                                <input type="text" id="p2-name-input" placeholder="Player 2" maxlength="12" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Online Multiplayer Lobby Section -->
+                <div class="player-name-section hidden" id="section-online-lobby">
+                    <label for="online-name-input" class="name-input-label">YOUR ONLINE NAME</label>
+                    <div class="name-input-box">
+                        <span class="input-avatar">🌐</span>
+                        <input type="text" id="online-name-input" placeholder="Your Name..." maxlength="12" autocomplete="off">
+                    </div>
+
+                    <div class="online-action-row">
+                        <button id="host-room-btn" class="btn btn-choice btn-even" style="flex:1;">🏠 HOST ROOM</button>
+                        <button id="open-join-card-btn" class="btn btn-choice btn-odd" style="flex:1;">🔗 JOIN ROOM</button>
+                    </div>
+
+                    <!-- Host Room Card -->
+                    <div id="host-room-card" class="room-lobby-card hidden">
+                        <div class="room-card-badge">ROOM HOSTED</div>
+                        <div class="room-code-display">
+                            <span class="room-code-label">SHARE ROOM CODE:</span>
+                            <div class="room-code-value" id="host-room-code">CRIC-XXXX</div>
+                            <button id="copy-room-code-btn" class="btn btn-copy-code" title="Copy Room Code">📋 COPY</button>
+                        </div>
+                        <div class="room-status-pulse">
+                            <span class="status-pulse-dot"></span>
+                            <span id="host-status-text">Waiting for opponent to connect...</span>
+                        </div>
+                    </div>
+
+                    <!-- Join Room Card -->
+                    <div id="join-room-card" class="room-lobby-card hidden">
+                        <div class="room-card-badge">JOIN ONLINE MATCH</div>
+                        <div class="name-input-box join-input-box">
+                            <span class="input-avatar">🔑</span>
+                            <input type="text" id="join-room-code-input" placeholder="5-LETTER CODE" maxlength="5" autocomplete="off" style="text-transform:uppercase; text-align:center; font-weight:900; letter-spacing:3px;">
+                        </div>
+                        <button id="join-room-confirm-btn" class="btn btn-primary" style="width:100%; margin-top:8px;">⚡ CONNECT & PLAY</button>
+                        <div id="join-status-text" class="join-status-msg"></div>
+                    </div>
+                </div>
+
+                <div class="menu-buttons" id="main-menu-action-buttons">
+                    <button id="start-game-btn" class="btn btn-primary btn-pulse">PLAY MATCH</button>
+                    <button id="how-to-play-btn" class="btn btn-secondary">RULES & GUIDE</button>
+                    <button id="settings-btn" class="btn btn-secondary">SETTINGS</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Play Screen -->
+        <div id="how-to-play-screen" class="screen">
+            <div class="info-content">
+                <h2>HOW TO PLAY & RULES</h2>
+                <div class="instructions">
+                    <div class="instruction-item rule-highlight">
+                        <h3>🪙 Toss & Preference Choice</h3>
+                        <p>Toss winner bats first and picks <strong>EVEN</strong> or <strong>ODD</strong> balls as their preference. The bowling team gets the opposite.</p>
+                    </div>
+
+                    <div class="instruction-item preferred-rule">
+                        <h3>★ On Preferred Balls (ATTACK!)</h3>
+                        <p>• <strong>Run Scored:</strong> <strong>+1 BONUS BALL</strong> added to your quota! (Innings extended!)<br>
+                           • <strong>Dot Ball:</strong> <strong>-1 Ball Penalty</strong> (costs 2 balls total).<br>
+                           • <strong>Wicket:</strong> <strong>-1 Ball Penalty</strong> + 1 Wicket lost.</p>
+                    </div>
+
+                    <div class="instruction-item non-preferred-rule">
+                        <h3>◇ On Non-Preferred Balls (DEFEND!)</h3>
+                        <p>• <strong>Dot Ball:</strong> <strong>SAFE (0 Penalty)</strong> — Safely preserve your balls!<br>
+                           • <strong>Run Scored:</strong> <strong>-1 Ball Penalty</strong> (Risky to hit!).<br>
+                           • <strong>Wicket:</strong> <strong>-1 Ball Penalty</strong> + 1 Wicket lost.</p>
+                    </div>
+
+                    <div class="instruction-item">
+                        <h3>⚡ Controls & Shortcuts</h3>
+                        <p>• Click/Tap <strong>SWING BAT</strong> or press <strong>SPACEBAR</strong> to hit.<br>
+                           • Click/Tap <strong>DEFEND</strong> or press <strong>D</strong> for a safe dot ball.<br>
+                           • Press <strong>P</strong> or tap <strong>⏸️</strong> to pause the match.</p>
+                    </div>
+                </div>
+                <button id="back-from-help-btn" class="btn btn-primary">BACK TO MENU</button>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="screen">
+            <div class="info-content">
+                <h2>SETTINGS</h2>
+                <div class="settings-options">
+                    <div class="setting-item">
+                        <label for="sound-toggle">Procedural Audio FX</label>
+                        <input type="checkbox" id="sound-toggle" checked>
+                    </div>
+                </div>
+                <button id="back-from-settings-btn" class="btn btn-primary">BACK</button>
+            </div>
+        </div>
+
+        <!-- Toss Screen -->
+        <div id="toss-screen" class="screen">
+            <div class="toss-content">
+                <h2 class="toss-title">COIN TOSS</h2>
+                <div id="coin-animation" class="coin">
+                    <div class="coin-inner">🪙</div>
+                </div>
+                <div id="toss-result" class="toss-result hidden">
+                    <div id="toss-winner-text" class="toss-winner-container"></div>
+                    <div id="toss-choice-buttons" class="choice-buttons">
+                        <button class="btn btn-choice btn-even" data-choice="even">EVEN BALLS (2, 4, 6...)</button>
+                        <button class="btn btn-choice btn-odd" data-choice="odd">ODD BALLS (1, 3, 5...)</button>
+                    </div>
+                    <div id="ball-count-selection" class="hidden">
+                        <p class="select-overs-title">Select Match Overs (Balls):</p>
+                        <div class="ball-count-buttons">
+                            <button class="btn btn-ball-count" data-balls="6">6 Balls (1 Over)</button>
+                            <button class="btn btn-ball-count active" data-balls="12">12 Balls (2 Overs)</button>
+                            <button class="btn btn-ball-count" data-balls="18">18 Balls (3 Overs)</button>
+                            <button class="btn btn-ball-count" data-balls="24">24 Balls (4 Overs)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Play Screen -->
+        <div id="game-screen" class="screen">
+            <!-- HUD Header -->
+            <div class="game-hud">
+                <div class="hud-top-bar">
+                    <div class="team-badge">
+                        <span id="batting-team-name">PLAYER</span>
+                        <span id="inning-badge" class="badge-pill">INNINGS 1</span>
+                    </div>
+
+                    <div class="scoreboard-main">
+                        <div class="score-card">
+                            <div class="score-label">SCORE</div>
+                            <div class="score-val"><span id="current-runs">0</span>/<span id="current-wickets">0</span></div>
+                        </div>
+                        <div class="score-card highlight-card">
+                            <div class="score-label">BALLS LEFT</div>
+                            <div class="score-val" id="balls-left">12</div>
+                        </div>
+                        <div class="score-card stats-card">
+                            <div class="score-label">BANK STATS</div>
+                            <div class="score-stat-text"><span class="bonus-stat" id="bonus-count">+0</span> | <span class="penalty-stat" id="penalty-count">-0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Pause Button in Top HUD -->
+                    <button id="pause-game-btn" class="btn-pause" title="Pause Game (P)">⏸️</button>
+                </div>
+
+                <!-- Ball Preference Badge & Target Info -->
+                <div class="hud-sub-bar">
+                    <div id="ball-badge" class="ball-badge preferred">★ BALL #1 (PREFERRED: ODD) ★</div>
+                    <div id="target-display" class="target-display hidden"></div>
+                </div>
+
+                <!-- Live Commentary Banner -->
+                <div class="commentary-bar">
+                    <div id="commentary-text" class="commentary-text">Match started! Toss winner batting.</div>
+                </div>
+            </div>
+
+            <!-- Cricket Field HTML5 Canvas Container -->
+            <div class="cricket-field">
+                <canvas id="game-canvas"></canvas>
+                <!-- AI Batting Middle Indicator -->
+                <div id="ai-batting-overlay" class="ai-batting-overlay hidden">
+                    <div class="ai-pill">
+                        <span class="ai-pulse-dot"></span>
+                        <span class="ai-icon">🤖</span>
+                        <span class="ai-text">COMPUTER IS PLAYING...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compact Batting Controls Panel -->
+            <div class="batting-control-panel">
+                <button id="defend-bat-btn" class="btn btn-defend btn-compact" title="Press D key on keyboard">
+                    <div class="btn-compact-inner">
+                        <span class="btn-icon">🛡️</span>
+                        <span class="btn-text">DEFEND</span>
+                        <kbd class="kbd-hint">D</kbd>
+                        <span class="action-tag" id="defend-tag">SAFE (0)</span>
+                    </div>
+                </button>
+                <button id="swing-bat-btn" class="btn btn-swing btn-compact" title="Press SPACEBAR on keyboard">
+                    <div class="btn-compact-inner">
+                        <span class="btn-icon">⚡</span>
+                        <span class="btn-text">SWING</span>
+                        <kbd class="kbd-hint">SPACE</kbd>
+                        <span class="action-tag" id="swing-tag">+1 BONUS</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Innings Break / Ready to Chase Screen -->
+        <div id="innings-break-screen" class="screen">
+            <div class="menu-content innings-break-content">
+                <div class="innings-break-badge">🏏 INNINGS BREAK</div>
+                <h2 class="innings-break-title" id="break-title">READY TO BAT!</h2>
+                
+                <div class="target-card">
+                    <div class="target-lead">Target to Win:</div>
+                    <div class="target-score" id="break-target-score">25 Runs</div>
+                    <div class="target-context" id="break-target-context">Need 25 runs in 12 balls to win</div>
+                </div>
+
+                <!-- Innings 1 Boundaries & Shot Breakdown -->
+                <div class="innings-breakdown-card" id="break-breakdown-card">
+                    <div class="breakdown-header">
+                        <span class="breakdown-title" id="break-breakdown-title">INNINGS 1 SHOT BREAKDOWN</span>
+                    </div>
+                    <div class="shot-stats-grid">
+                        <div class="shot-chip shot-six"><span class="chip-count" id="inn1-sixes">0</span><span class="chip-lbl">6s</span></div>
+                        <div class="shot-chip shot-four"><span class="chip-count" id="inn1-fours">0</span><span class="chip-lbl">4s</span></div>
+                        <div class="shot-chip shot-three"><span class="chip-count" id="inn1-threes">0</span><span class="chip-lbl">3s</span></div>
+                        <div class="shot-chip shot-two"><span class="chip-count" id="inn1-twos">0</span><span class="chip-lbl">2s</span></div>
+                        <div class="shot-chip shot-one"><span class="chip-count" id="inn1-ones">0</span><span class="chip-lbl">1s</span></div>
+                        <div class="shot-chip shot-dot"><span class="chip-count" id="inn1-dots">0</span><span class="chip-lbl">Dots</span></div>
+                    </div>
+                </div>
+
+                <div class="preference-announcement-card" id="break-preference-card">
+                    <div class="pref-lead">★ YOUR BATTING PREFERENCE:</div>
+                    <div class="pref-val" id="break-preference-val">ODD BALLS (1, 3, 5...)</div>
+                    <div class="pref-strategy">
+                        <div class="strat-item attack-strat">
+                            <span class="strat-icon">⚡</span>
+                            <div class="strat-desc"><strong>Preferred Balls:</strong> SWING BAT (Spacebar) for <strong>+1 BONUS BALL</strong>!</div>
+                        </div>
+                        <div class="strat-item defend-strat">
+                            <span class="strat-icon">🛡️</span>
+                            <div class="strat-desc"><strong>Non-Preferred Balls:</strong> DEFEND (Key D) for <strong>SAFE 0 PENALTY</strong>!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-buttons">
+                    <button id="start-innings-2-btn" class="btn btn-primary btn-pulse">🏏 START BATTING (CHASE TARGET)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Modal Screen -->
+        <div id="pause-screen" class="screen">
+            <div class="menu-content pause-content">
+                <div class="pause-badge">⏸️ MATCH PAUSED</div>
+                <h2 class="pause-title">GAME PAUSED</h2>
+                <div class="pause-stats-summary" id="pause-match-summary"></div>
+                <div class="menu-buttons">
+                    <button id="resume-game-btn" class="btn btn-primary btn-pulse">▶️ RESUME PLAY</button>
+                    <button id="restart-match-btn" class="btn btn-secondary">🔄 RESTART MATCH</button>
+                    <button id="pause-main-menu-btn" class="btn btn-secondary">🏠 MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen">
+            <div class="result-content">
+                <div class="trophy-icon">🏆</div>
+                <h2 id="result-title">MATCH RESULT</h2>
+                <div id="result-message" class="result-message"></div>
+
+                <div class="match-stats">
+                    <h3>MATCH SCORECARD & BOUNDARIES</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Player (You):</span>
+                            <span class="stat-value" id="final-player-score">0/0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Computer:</span>
+                            <span class="stat-value" id="final-opponent-score">0/0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Match Overs:</span>
+                            <span class="stat-value" id="final-total-balls">12</span>
+                        </div>
+                        <div class="stat-item highlight-high-score">
+                            <span class="stat-label">🏆 All-Time High Score:</span>
+                            <span class="stat-value" id="final-high-score">0 Runs</span>
+                        </div>
+                    </div>
+
+                    <!-- Final Shot & Boundary Breakdowns -->
+                    <div class="final-shot-breakdown-container">
+                        <div class="team-shots-card">
+                            <div class="team-shots-name" id="final-p1-shots-name">PLAYER 1 BOUNDARIES</div>
+                            <div class="shot-stats-grid">
+                                <div class="shot-chip shot-six"><span class="chip-count" id="final-p1-sixes">0</span><span class="chip-lbl">6s</span></div>
+                                <div class="shot-chip shot-four"><span class="chip-count" id="final-p1-fours">0</span><span class="chip-lbl">4s</span></div>
+                                <div class="shot-chip shot-three"><span class="chip-count" id="final-p1-threes">0</span><span class="chip-lbl">3s</span></div>
+                                <div class="shot-chip shot-two"><span class="chip-count" id="final-p1-twos">0</span><span class="chip-lbl">2s</span></div>
+                                <div class="shot-chip shot-one"><span class="chip-count" id="final-p1-ones">0</span><span class="chip-lbl">1s</span></div>
+                                <div class="shot-chip shot-dot"><span class="chip-count" id="final-p1-dots">0</span><span class="chip-lbl">Dots</span></div>
+                            </div>
+                        </div>
+                        <div class="team-shots-card">
+                            <div class="team-shots-name" id="final-p2-shots-name">COMPUTER BOUNDARIES</div>
+                            <div class="shot-stats-grid">
+                                <div class="shot-chip shot-six"><span class="chip-count" id="final-p2-sixes">0</span><span class="chip-lbl">6s</span></div>
+                                <div class="shot-chip shot-four"><span class="chip-count" id="final-p2-fours">0</span><span class="chip-lbl">4s</span></div>
+                                <div class="shot-chip shot-three"><span class="chip-count" id="final-p2-threes">0</span><span class="chip-lbl">3s</span></div>
+                                <div class="shot-chip shot-two"><span class="chip-count" id="final-p2-twos">0</span><span class="chip-lbl">2s</span></div>
+                                <div class="shot-chip shot-one"><span class="chip-count" id="final-p2-ones">0</span><span class="chip-lbl">1s</span></div>
+                                <div class="shot-chip shot-dot"><span class="chip-count" id="final-p2-dots">0</span><span class="chip-lbl">Dots</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-buttons">
+                    <button id="play-again-btn" class="btn btn-primary btn-pulse">PLAY AGAIN</button>
+                    <button id="main-menu-btn" class="btn btn-secondary">MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PeerJS WebRTC Library -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+    <!-- JavaScript Files with Cache Buster -->
+    <script src="js/utils.js?v=19.0"></script>
+    <script src="js/multiplayer-manager.js?v=19.0"></script>
+    <script src="js/game-state.js?v=19.0"></script>
+    <script src="js/game-logic.js?v=19.0"></script>
+    <script src="js/canvas-renderer.js?v=19.0"></script>
+    <script src="js/animation-controller.js?v=19.0"></script>
+    <script src="js/ui-controller.js?v=19.0"></script>
+    <script src="js/app.js?v=19.0"></script>
+
+    <!-- Auto-purge any stale service worker caches -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    for (let name of names) caches.delete(name);
+                });
+            }
+        }
+        // Fallback auto-init for CanvasRenderer
+        window.addEventListener('load', () => {
+            const canvas = document.getElementById('game-canvas');
+            if (canvas && window.CanvasRenderer && !window.CanvasRenderer.isRunning) {
+                window.CanvasRenderer.init(canvas);
+            }
+        });
+    </script>
+</body>
+
+</html>

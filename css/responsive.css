@@ -1,0 +1,77 @@
+/* ===================================
+   RESPONSIVE LAYOUT & MEDIA QUERIES
+   Mobile, Tablet, and Desktop Support
+   =================================== */
+
+@media (max-width: 600px) {
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+
+    .game-title {
+        font-size: 2rem;
+    }
+
+    .game-hud {
+        padding: 8px 12px;
+    }
+
+    .score-val {
+        font-size: 1.15rem;
+    }
+
+    .score-card {
+        padding: 4px 8px;
+    }
+
+    .batting-control-panel {
+        bottom: 8px;
+        padding: 0 8px;
+        gap: 6px;
+    }
+
+    .btn-compact {
+        height: 36px;
+        min-height: 36px;
+        padding: 4px 8px;
+    }
+
+    .btn-compact .btn-text {
+        font-size: 0.76rem;
+    }
+
+    .action-tag {
+        font-size: 0.58rem;
+        padding: 1px 4px;
+    }
+}
+
+@media (max-height: 700px) {
+    .menu-content,
+    .toss-content,
+    .result-content {
+        padding: 20px 16px;
+    }
+
+    .game-title {
+        font-size: 1.8rem;
+        margin-bottom: 4px;
+    }
+
+    .game-subtitle {
+        margin-bottom: 16px;
+    }
+
+    .instructions {
+        max-height: 260px;
+    }
+
+    .coin {
+        margin: 10px auto;
+        font-size: 3rem;
+    }
+}

@@ -1,0 +1,186 @@
+/* ===================================
+   GAME ANIMATIONS & VISUAL FX
+   Ball trajectories, Bat swings, Floating Badges
+   =================================== */
+
+/* Bowling Trajectory: From Bowler Hand (top) to Batsman Crease (bottom) */
+.cricket-ball.bowling {
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.65);
+    animation: bowlingFlight 1.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes bowlingFlight {
+    0% {
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%) scale(0.65);
+    }
+    55% {
+        /* Pitch bounce */
+        top: 250px;
+        left: 49%;
+        transform: translateX(-50%) scale(0.9);
+    }
+    100% {
+        /* At Batsman crease */
+        top: 360px;
+        left: 49.5%;
+        transform: translateX(-50%) scale(1.1);
+    }
+}
+
+/* Hit Six: High loft out of stadium */
+.cricket-ball.hit-six {
+    animation: hitSixTrajectory 0.75s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
+}
+
+@keyframes hitSixTrajectory {
+    0% {
+        top: 360px;
+        left: 50%;
+        transform: scale(1.1);
+    }
+    50% {
+        top: 90px;
+        left: 30%;
+        transform: scale(2.4);
+    }
+    100% {
+        top: -50px;
+        left: 10%;
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Hit Four: Fast boundary drive */
+.cricket-ball.hit-four {
+    animation: hitFourTrajectory 0.65s ease-out forwards;
+}
+
+@keyframes hitFourTrajectory {
+    0% {
+        top: 360px;
+        left: 50%;
+        transform: scale(1.1);
+    }
+    100% {
+        top: 190px;
+        left: 95%;
+        transform: scale(0.8);
+        opacity: 0;
+    }
+}
+
+/* Hit Single: Ground stroke */
+.cricket-ball.hit-single {
+    animation: hitSingleTrajectory 0.55s ease-out forwards;
+}
+
+@keyframes hitSingleTrajectory {
+    0% {
+        top: 360px;
+        left: 50%;
+        transform: scale(1.1);
+    }
+    100% {
+        top: 260px;
+        left: 20%;
+        transform: scale(0.85);
+        opacity: 0;
+    }
+}
+
+/* Hit Stumps / Wicket */
+.cricket-ball.hit-stumps {
+    animation: hitStumpsAnim 0.5s ease forwards;
+}
+
+@keyframes hitStumpsAnim {
+    0% {
+        top: 360px;
+        left: 50%;
+    }
+    100% {
+        top: 380px;
+        left: 50%;
+        transform: scale(0.9);
+        opacity: 0;
+    }
+}
+
+/* Soft Dot Ball */
+.cricket-ball.hit-dot {
+    animation: hitDotAnim 0.4s ease-out forwards;
+}
+
+@keyframes hitDotAnim {
+    0% { top: 360px; left: 50%; }
+    100% { top: 390px; left: 50%; opacity: 0; }
+}
+
+/* ===================================
+   FLOATING BADGES (+1 BONUS / -1 PENALTY)
+   =================================== */
+.floating-badge {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    text-align: center;
+    z-index: 50;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    animation: floatUpFade 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    pointer-events: none;
+}
+
+.floating-badge.bonus {
+    background: linear-gradient(135deg, #00e676 0%, #00a152 100%);
+    color: #062b10;
+    border: 2px solid #b9f6ca;
+}
+
+.floating-badge.penalty {
+    background: linear-gradient(135deg, #ff1744 0%, #b71c1c 100%);
+    color: #ffffff;
+    border: 2px solid #ff8a80;
+}
+
+.floating-badge.safe {
+    background: linear-gradient(135deg, #00b0ff 0%, #0288d1 100%);
+    color: #ffffff;
+    border: 2px solid #80d8ff;
+}
+
+.floating-badge small {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+@keyframes floatUpFade {
+    0% {
+        transform: translate(-50%, -20%) scale(0.7);
+        opacity: 0;
+    }
+    30% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+    80% {
+        transform: translate(-50%, -70%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -90%) scale(0.9);
+        opacity: 0;
+    }
+}
