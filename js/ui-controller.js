@@ -54,6 +54,7 @@ const UIController = {
         const hostCard = document.getElementById('host-room-card');
         const joinCard = document.getElementById('join-room-card');
         const copyBtn = document.getElementById('copy-room-code-btn');
+        const shareBtn = document.getElementById('share-room-link-btn');
         const hostCodeElem = document.getElementById('host-room-code');
         const hostStatusElem = document.getElementById('host-status-text');
         const joinInput = document.getElementById('join-room-code-input');
@@ -67,6 +68,31 @@ const UIController = {
                     navigator.clipboard?.writeText(code);
                     copyBtn.textContent = '✅ COPIED!';
                     setTimeout(() => copyBtn.textContent = '📋 COPY', 2000);
+                }
+            });
+        }
+
+        if (shareBtn) {
+            shareBtn.addEventListener('click', async () => {
+                const code = MultiplayerManager.roomCode;
+                if (!code) return;
+                const shareUrl = `${window.location.origin}${window.location.pathname}?room=${code}`;
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'Even/Odd Cricket Match',
+                            text: `🏏 Play an Online Even/Odd Cricket Match with me! Room Code: ${code}`,
+                            url: shareUrl
+                        });
+                        return;
+                    } catch (e) {
+                        // Fallback to clipboard
+                    }
+                }
+                if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(shareUrl);
+                    shareBtn.textContent = '✅ INVITE LINK COPIED!';
+                    setTimeout(() => shareBtn.textContent = '📲 SHARE INVITE LINK', 2500);
                 }
             });
         }

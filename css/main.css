@@ -730,6 +730,27 @@ body {
     color: #1e1b4b;
 }
 
+.btn-share-link {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(14, 165, 233, 0.2) 100%);
+    border: 1.5px solid #38bdf8;
+    color: #38bdf8;
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-share-link:hover {
+    background: #38bdf8;
+    color: #0f172a;
+}
+
 .room-status-pulse {
     display: flex;
     align-items: center;

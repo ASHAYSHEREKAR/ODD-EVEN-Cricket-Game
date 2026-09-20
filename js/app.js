@@ -21,8 +21,28 @@ class CricketGameApp {
         AnimationController.init();
         this.setupEventListeners();
         this.setupMultiplayerListeners();
+        this.checkInviteUrl();
         UIController.showScreen('menu');
         console.log('Cricket Game initialized with Local 2P & Online Room Multiplayer!');
+    }
+
+    checkInviteUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomCode = urlParams.get('room') || window.location.hash.replace('#room=', '').replace('#', '').trim();
+        if (roomCode && roomCode.length >= 3) {
+            setTimeout(() => {
+                const onlineTab = document.querySelector('.mode-tab[data-mode="online"]');
+                onlineTab?.click();
+                const openJoinBtn = document.getElementById('open-join-card-btn');
+                openJoinBtn?.click();
+                const joinInput = document.getElementById('join-room-code-input');
+                if (joinInput) {
+                    joinInput.value = roomCode.toUpperCase();
+                }
+                const joinConfirmBtn = document.getElementById('join-room-confirm-btn');
+                joinConfirmBtn?.click();
+            }, 300);
+        }
     }
 
     setupEventListeners() {
@@ -64,9 +84,9 @@ class CricketGameApp {
         });
 
         // Toss Preference Buttons (Even / Odd)
-        document.querySelectorAll('.btn-choice').forEach(btn => {
+        document.querySelectorAll('.btn-toss-choice').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const choice = e.target.dataset.choice;
+                const choice = e.currentTarget.dataset.choice || e.target.dataset.choice;
                 this.selectedPreference = choice;
                 // Transition to ball count selection
                 Utils.hide(document.getElementById('toss-choice-buttons'));
