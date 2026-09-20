@@ -202,3 +202,17 @@ python cricket_backend/cli_runner.py --sim 10
 - [Complete API Reference & Data Contracts (`API_REFERENCE.md`)](API_REFERENCE.md)
 - [Testing Guide & Quality Gates (`TESTING_GUIDE.md`)](TESTING_GUIDE.md)
 - [Agent Directives & Specification (`AGENT.md`)](AGENT.md)
+
+---
+
+## 👨‍💻 Created by Ashay Sherekar
+
+Developed with ❤️ by **Ashay Sherekar**.
+
+- **LinkedIn:** [linkedin.com/in/ashay-sherekar](https://www.linkedin.com/in/ashay-sherekar)
+- **Instagram:** [@ashay_sherekar](https://www.instagram.com/ashay_sherekar/)
+- **GitHub:** [@ASHAYSHEREKAR](https://github.com/ASHAYSHEREKAR)
+- **Email:** [ashaysherekar12@gmail.com](mailto:ashaysherekar12@gmail.com)
+
+
+

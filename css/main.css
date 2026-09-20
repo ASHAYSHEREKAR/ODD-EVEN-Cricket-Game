@@ -1694,6 +1694,117 @@ body {
     color: var(--accent-gold);
 }
 
+/* ===================================
+   Creator Credits & Social Links Footer
+   =================================== */
+.creator-credits-footer {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    user-select: none;
+}
+
+.creator-label {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.82);
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.creator-heart {
+    display: inline-block;
+    animation: heartPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes heartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+}
+
+.creator-name {
+    font-weight: 800;
+    color: #ffd54f;
+    text-shadow: 0 0 10px rgba(255, 213, 79, 0.4);
+    letter-spacing: 0.4px;
+}
+
+.creator-social-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.social-btn .social-svg {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.social-btn:hover .social-svg {
+    transform: scale(1.15);
+}
+
+.social-btn:active {
+    transform: translateY(0) scale(0.96);
+}
+
+.social-btn.linkedin-btn:hover {
+    background: #0a66c2;
+    border-color: #0077b5;
+    box-shadow: 0 4px 14px rgba(10, 102, 194, 0.5);
+}
+
+.social-btn.insta-btn:hover {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    border-color: #e1306c;
+    box-shadow: 0 4px 14px rgba(225, 48, 108, 0.5);
+}
+
+.social-btn.github-btn:hover {
+    background: #24292e;
+    border-color: #4078c0;
+    box-shadow: 0 4px 14px rgba(36, 41, 46, 0.6);
+}
+
+.social-btn.gmail-btn:hover {
+    background: #d93025;
+    border-color: #ea4335;
+    box-shadow: 0 4px 14px rgba(234, 67, 53, 0.55);
+}
+
 .hidden {
     display: none !important;
 }
