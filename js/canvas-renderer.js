@@ -1,7 +1,4 @@
-// ===================================
-// CANVAS RENDERER & 2.5D ANIMATION ENGINE
-// Google Doodle Inspired Pseudo-3D Cricket Stadium, Characters & Ball Physics
-// ===================================
+// Doodle Style Pseudo-3D Cricket Stadium, Characters & Ball Physics
 
 // Safe cross-browser RoundRect helper
 function safeRoundRect(ctx, x, y, w, h, radius) {

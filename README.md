@@ -1,6 +1,6 @@
 # 🏏 Even/Odd Cricket Game
 
-> **An interactive, strategic cricket game inspired by Google Doodle Cricket aesthetics, powered by a dual-engine architecture (HTML5 Canvas + Python Backend) with WebRTC multiplayer and an innovative Even/Odd Ball-Bank Economy.**
+> **An interactive, strategic cricket game in classic Doodle style, powered by a dual-engine architecture (HTML5 Canvas + Python Backend) with WebRTC multiplayer and an innovative Even/Odd Ball-Bank Economy.**
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
