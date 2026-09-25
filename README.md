@@ -13,6 +13,7 @@
 - [Executive Overview](#-executive-overview)
 - [Core Gameplay Mechanics](#-core-gameplay-mechanics)
 - [Game Modes](#-game-modes)
+- [Mascot Cast & Animated Characters](#-mascot-cast--animated-characters)
 - [Bowling Variations & Physics Engine](#-bowling-variations--physics-engine)
 - [Project Architecture](#-project-architecture)
 - [Directory Structure](#-directory-structure)
@@ -90,6 +91,20 @@ Players can customize their single-player challenge using the **Difficulty Slide
    - Zero-server, low-latency peer-to-peer multiplayer using 5-letter Room Codes.
    - Host generates code; opponent enters code to connect.
    - Synchronizes coin toss, ball delivery parameters, bat timing, and innings transitions in real time.
+
+---
+
+## 🦁 Mascot Cast & Animated Characters
+
+The game features an expressive, animated cast with dynamic role-based physics:
+
+| Role | Mascot | Visual Identity & Persona | Animations & Actions |
+| :--- | :--- | :--- | :--- |
+| 🦁 **Batsman** | **Leo the Lion King** | Golden lion mane, helmet with wire grille visor, twin knee pads, English willow bat with grip rings, swishing tail | • Lofted Six pull shot overhead<br>• Four cover drive along turf<br>• Forward defensive block<br>• Running sprint between creases<br>• Roar celebrations & dismay expressions |
+| 🐆 / 🦊 / 🦗 **Bowler** | **Dynamic Bowler System** | • **🐆 Cheetah:** Fast/Bouncer/Yorker pace<br>• **🦊 Sly Fox:** Spin/Googly/Slower flight<br>• **🦗 Mantis:** Inswing/Outswing seam | • Progressive 3-stride run-up with knee lifts<br>• 360° windmill delivery with wrist snap<br>• Celebratory leap & fist pump on wickets<br>• Frustration facepalm on boundaries |
+| 🐌 **Fielders** | **Snail Outfield Crew** | Colorful swirly shell with gloss highlights, cute smiling face, team bandana, ball-tracking eyestalks | • Real-time ball tracking with dynamic eyestalk angles<br>• Sliding glides and spinning shell dives across turf<br>• Cheering bounce & antenna wiggles on wickets |
+| 🐒 **Wicketkeeper** | **Milo the Monkey** | Athletic monkey crouched behind stumps with oversized webbed keeper gloves & curled tail | • Crouched keeping stance & tail swish<br>• Quick glove catch on missed deliveries |
+| 🦒 **Match Umpire** | **Professor Giraffe** | Tall spotted neck, wide-brim sun-hat, round spectacles, navy blazer & bowtie | • **Six:** Reaches long neck & raises both arms high<br>• **Four:** Sweeping horizontal arm wave<br>• **Out:** Raises index hoof with sharp neck nod<br>• **Safe:** Horizontal arms spread wide |
 
 ---
 

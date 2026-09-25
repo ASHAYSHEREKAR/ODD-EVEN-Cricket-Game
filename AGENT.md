@@ -137,9 +137,32 @@ graph TD
 
 ---
 
-## 5. Coding Standards & Error Handling
+## 5. Mascot & Animation System Architecture
+
+The 2.5D perspective canvas renderer (`js/canvas-renderer.js`) maintains an expressive mascot system:
+
+1. **🦁 Striker Batsman (Leo the Lion King):**
+   - Head styled with golden lion mane, cricket helmet with wire grille, swishing tail with tuft, twin knee pads, and high-detail willow bat.
+   - Dynamic stroke arcs: Lofted six overhead pull, crisp cover drive along turf, forward defense block, and running sprint cycle.
+2. **🐆 / 🦊 / 🦗 Dynamic Bowler System:**
+   - Morphs automatically based on delivery variation:
+     - **Cheetah (Pacer):** Bouncer, Yorker, Fast pace.
+     - **Fox (Spinner):** Googly, Knuckle Slower, Spin flight.
+     - **Mantis (Seamer):** Inswinger, Outswinger, Medium swing.
+   - Progressive 3-stride run-up, 360° windmill arm rotation, celebration leap on wickets, and frustration facepalms on boundaries.
+3. **🐌 Outfield Fielders (Snail Crew):**
+   - Colorful swirled shells with gloss highlights, cute smiling face, team bandanas, 3D ball-tracking eyestalks, sliding glides, and spinning shell dives with grass particles.
+4. **🐒 Wicketkeeper (Milo the Monkey):**
+   - Crouched posture behind stumps, curled prehensile tail, and oversized webbed keeper gloves.
+5. **🦒 Match Umpire (Professor Giraffe):**
+   - Tall spotted neck with extendable height, sun-hat, spectacles, navy blazer, and dynamic signals (Six, Four, Out, Safe).
+
+---
+
+## 6. Coding Standards & Error Handling
 
 - **Immutable Constants:** All rule constants (+1 bonus, -1 penalty, max wickets) must reside in configuration/models, never scattered as magic numbers.
 - **State Synchronization:** The JavaScript `GameState` / `GameLogic` must mirror the exact rule results produced by the Python `CricketMatchEngine`.
 - **Deterministic AI:** The AI opponent in `ai_opponent.py` must use weighted probability distributions that intelligently respect the Even/Odd strategy (defending on non-preferred balls, attacking on preferred balls).
 - **Graceful Degradation:** If audio context is blocked by browser autoplay policies, resume on first user click without throwing exceptions.
+
