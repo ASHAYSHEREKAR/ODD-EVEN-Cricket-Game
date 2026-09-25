@@ -379,16 +379,42 @@ class CricketGameApp {
             return;
         }
 
-        const variations = [
-            { variation: 'standard', speed: 'medium' },
-            { variation: 'standard', speed: 'fast' },
-            { variation: 'inswinger', speed: 'fast' },
-            { variation: 'outswinger', speed: 'medium' },
-            { variation: 'bouncer', speed: 'fast' },
-            { variation: 'yorker', speed: 'fast' },
-            { variation: 'slower', speed: 'slow' },
-            { variation: 'googly', speed: 'medium' }
-        ];
+        const diff = GameState.difficulty || 'medium';
+        let variations = [];
+
+        if (diff === 'low') {
+            variations = [
+                { variation: 'standard', speed: 'medium' },
+                { variation: 'standard', speed: 'medium' },
+                { variation: 'standard', speed: 'slow' },
+                { variation: 'standard', speed: 'medium' },
+                { variation: 'inswinger', speed: 'medium' },
+                { variation: 'outswinger', speed: 'medium' },
+                { variation: 'slower', speed: 'slow' }
+            ];
+        } else if (diff === 'high') {
+            variations = [
+                { variation: 'standard', speed: 'fast' },
+                { variation: 'inswinger', speed: 'fast' },
+                { variation: 'outswinger', speed: 'fast' },
+                { variation: 'bouncer', speed: 'fast' },
+                { variation: 'yorker', speed: 'fast' },
+                { variation: 'slower', speed: 'slow' },
+                { variation: 'googly', speed: 'medium' }
+            ];
+        } else {
+            variations = [
+                { variation: 'standard', speed: 'medium' },
+                { variation: 'standard', speed: 'fast' },
+                { variation: 'inswinger', speed: 'fast' },
+                { variation: 'outswinger', speed: 'medium' },
+                { variation: 'bouncer', speed: 'fast' },
+                { variation: 'yorker', speed: 'fast' },
+                { variation: 'slower', speed: 'slow' },
+                { variation: 'googly', speed: 'medium' }
+            ];
+        }
+
         const chosen = variations[Math.floor(Math.random() * variations.length)];
 
         if (GameState.gameMode === GameState.MODE_ONLINE && MultiplayerManager.isConnected) {
@@ -447,7 +473,9 @@ class CricketGameApp {
                 // Ball passed without shot -> DOT or Wicket
                 this.isProcessingBall = true;
                 this.deliveryActive = false;
-                const missedOutcome = { runs: 0, isWicket: Math.random() < 0.20, rating: 'MISSED', ratingText: '💨 BEATEN BY PACE' };
+                const diff = GameState.difficulty || 'medium';
+                const bowledRisk = diff === 'low' ? 0.10 : (diff === 'high' ? 0.35 : 0.20);
+                const missedOutcome = { runs: 0, isWicket: Math.random() < bowledRisk, rating: 'MISSED', ratingText: '💨 BEATEN BY PACE' };
                 if (GameState.gameMode === GameState.MODE_ONLINE && MultiplayerManager.isConnected) {
                     MultiplayerManager.send(MultiplayerManager.EVENTS.BAT_ACTION, {
                         timingOffset: 9999,
@@ -514,10 +542,13 @@ class CricketGameApp {
         const result = GameLogic.processDelivery(outcome.runs, outcome.isWicket);
 
         // Animate ball hit / wicket on Canvas
-        await AnimationController.animateBallFlight(outcome.runs, outcome.isWicket);
+        await AnimationController.animateBallFlight(outcome.runs, result.isWicket);
 
         // Show floating bonus/penalty popup
-        if (result.delta > 0) {
+        if (result.isWicketPenalty) {
+            AnimationController.showFloatingBadge(-1, `💥 WICKET PENALTY! (3 Consecutive Risky Hits)`);
+            Utils.playSound('wicket');
+        } else if (result.delta > 0) {
             AnimationController.showFloatingBadge(+1, `+1 BONUS BALL! (${outcome.ratingText})`);
         } else if (result.delta < 0) {
             AnimationController.showFloatingBadge(-1, `-1 PENALTY (${outcome.ratingText})`);
@@ -527,7 +558,7 @@ class CricketGameApp {
 
         // Update UI
         UIController.updateScoreboard();
-        UIController.showCommentary(result.commentary, result.delta > 0 ? 'bonus' : (result.delta < 0 ? 'penalty' : 'safe'));
+        UIController.showCommentary(result.commentary, result.isWicketPenalty ? 'penalty' : (result.delta > 0 ? 'bonus' : (result.delta < 0 ? 'penalty' : 'safe')));
 
         await Utils.wait(1200);
         if (this.isPaused) return;

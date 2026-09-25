@@ -1221,6 +1221,14 @@ const CanvasRenderer = {
             maxBounceZ = 18;
         }
 
+        // Adjust speed/reaction window based on difficulty setting
+        const diff = (typeof GameState !== 'undefined' && GameState.difficulty) ? GameState.difficulty : 'medium';
+        if (diff === 'low') {
+            duration = Math.round(duration * 1.25); // Slower & easier to track
+        } else if (diff === 'high') {
+            duration = Math.round(duration * 0.78); // Rapid express pace
+        }
+
         s.ball.variation = variation;
         s.ball.bouncePitchPoint = bouncePitchPoint;
         s.ball.maxBounceZ = maxBounceZ;

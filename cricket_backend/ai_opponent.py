@@ -9,10 +9,12 @@ from .models import BallPreference, InningsState
 
 
 class CricketAI:
-    def __init__(self, aggressiveness: float = 0.7):
+    def __init__(self, difficulty: str = "medium", aggressiveness: float = 0.7):
         """
+        :param difficulty: 'low', 'medium', or 'high'
         :param aggressiveness: 0.0 (very defensive) to 1.0 (very aggressive)
         """
+        self.difficulty = difficulty.lower() if difficulty else "medium"
         self.aggressiveness = aggressiveness
 
     def choose_toss_preference(self) -> BallPreference:
@@ -21,15 +23,7 @@ class CricketAI:
 
     def decide_shot(self, innings: InningsState) -> Tuple[int, bool]:
         """
-        AI decides what shot to play on the upcoming ball.
-        Strategy:
-        - If upcoming ball is PREFERRED:
-            * High incentive to attack and score runs to earn +1 bonus ball.
-            * AI chooses between 1, 2, 4, or 6 runs with small wicket risk.
-        - If upcoming ball is NON-PREFERRED:
-            * High incentive to defend/play safe dot ball (0 runs) to avoid the -1 penalty for scoring or getting out.
-            * Small chance of misjudgment resulting in a single or wicket.
-
+        AI decides what shot to play on the upcoming ball based on difficulty.
         Returns: (runs, is_wicket)
         """
         next_ball_num = innings.deliveries_bowled + 1
@@ -41,23 +35,62 @@ class CricketAI:
             else (next_ball_num % 2 != 0)
         )
 
-        if is_preferred:
-            # Attack on preferred ball
-            roll = random.random()
-            if roll < 0.12:  # 12% chance of wicket
-                return (0, True)
-            elif roll < 0.40:
-                return (random.choice([4, 6]), False)
-            elif roll < 0.80:
-                return (random.choice([1, 2, 3]), False)
+        if self.difficulty == "low":
+            if is_preferred:
+                roll = random.random()
+                if roll < 0.22: # 22% wicket on easy
+                    return (0, True)
+                elif roll < 0.55:
+                    return (random.choice([4, 6]), False)
+                elif roll < 0.85:
+                    return (random.choice([1, 2]), False)
+                else:
+                    return (0, False)
             else:
-                return (0, False)  # Dot ball
+                roll = random.random()
+                if roll < 0.55: # Only 55% safe defense
+                    return (0, False)
+                elif roll < 0.85: # 30% risky hits
+                    return (random.choice([1, 2]), False)
+                else:
+                    return (0, True)
+        elif self.difficulty == "high":
+            if is_preferred:
+                roll = random.random()
+                if roll < 0.05: # Only 5% wicket risk
+                    return (0, True)
+                elif roll < 0.65: # 60% boundary rate
+                    return (random.choice([4, 6]), False)
+                elif roll < 0.95:
+                    return (random.choice([1, 2, 3]), False)
+                else:
+                    return (0, False)
+            else:
+                # Ruthless discipline on non-preferred: 92% safe dot balls
+                roll = random.random()
+                if roll < 0.92:
+                    return (0, False)
+                elif roll < 0.97:
+                    return (1, False)
+                else:
+                    return (0, True)
         else:
-            # Defend on non-preferred ball (Optimal strategy: safe dot)
-            roll = random.random()
-            if roll < 0.75:  # 75% chance of safe dot ball
-                return (0, False)
-            elif roll < 0.90:  # 15% mistimed push for 1 or 2 runs
-                return (random.choice([1, 2]), False)
-            else:  # 10% edge/wicket
-                return (0, True)
+            # Medium (default)
+            if is_preferred:
+                roll = random.random()
+                if roll < 0.12:
+                    return (0, True)
+                elif roll < 0.45:
+                    return (random.choice([4, 6]), False)
+                elif roll < 0.85:
+                    return (random.choice([1, 2, 3]), False)
+                else:
+                    return (0, False)
+            else:
+                roll = random.random()
+                if roll < 0.80:
+                    return (0, False)
+                elif roll < 0.92:
+                    return (random.choice([1, 2]), False)
+                else:
+                    return (0, True)

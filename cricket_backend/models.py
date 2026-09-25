@@ -75,6 +75,7 @@ class InningsState:
     bonus_balls_earned: int = 0  # Total +1 additions from rules
     penalty_balls_lost: int = 0  # Total -1 deductions from rules
     remaining_balls: int = 12    # Dynamic available balls pool
+    non_pref_scoring_streak: int = 0 # Consecutive scoring hits (>0) on non-preferred balls
     is_completed: bool = False
     target: Optional[int] = None # For inning 2
     history: List[DeliveryResult] = field(default_factory=list)
@@ -95,6 +96,7 @@ class InningsState:
             "max_wickets": self.max_wickets,
             "deliveries_bowled": self.deliveries_bowled,
             "remaining_balls": self.remaining_balls,
+            "non_pref_scoring_streak": self.non_pref_scoring_streak,
             "total_balls_allocated": self.total_balls_allocated,
             "bonus_balls_earned": self.bonus_balls_earned,
             "penalty_balls_lost": self.penalty_balls_lost,

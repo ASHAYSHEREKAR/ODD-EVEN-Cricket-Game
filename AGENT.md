@@ -3,7 +3,7 @@
 > **Project:** Even/Odd Strategic Cricket Game (Google Doodle Inspired)  
 > **Backend:** Python Engine (`cricket_backend/`)  
 > **Frontend:** HTML5 / CSS3 / JavaScript (`index.html`, `js/`, `css/`)  
-> **Reference:** [TESTING_AGENT.md](file:///c:/Users/Ashay/Desktop/CricketGame/TESTING_AGENT.md) | [TESTING_GUIDE.md](file:///c:/Users/Ashay/Desktop/CricketGame/TESTING_GUIDE.md)
+> **Reference:** [`DOCUMENTATION_AGENT.md`](file:///c:/Users/Ashay/Desktop/CricketGame/DOCUMENTATION_AGENT.md) | [`TESTING_AGENT.md`](file:///c:/Users/Ashay/Desktop/CricketGame/TESTING_AGENT.md) | [`TESTING_GUIDE.md`](file:///c:/Users/Ashay/Desktop/CricketGame/TESTING_GUIDE.md)
 
 ---
 
@@ -85,7 +85,17 @@ The backend and frontend must **strictly enforce** the following ball quota mech
 | **Non-Preferred Ball** | Dot Ball ($0$) | **$0$** (Safe) | **$-1$** (Standard 1 delivery bowled) | Score unchanged |
 | **Non-Preferred Ball** | Wicket | **$-1$** (Penalty) | **$-2$** (Double deduction) | $+1$ Wicket |
 
-### C. Inning Termination & Victory Conditions
+### C. Strategic 3-Strike Non-Preferred Wicket Penalty
+- Scoring runs ($>0$) on non-preferred deliveries **3 consecutive times** without playing a defensive dot ball triggers an immediate **$+1$ WICKET PENALTY**.
+- Safe dot balls (or defending with key **`D`**) reset the streak counter back to **0**.
+- The backend (`InningsState.non_pref_scoring_streak`) and client (`battingTeam.nonPrefScoringStreak`) must remain strictly synchronized.
+
+### D. Difficulty Calibration Invariants
+- **Low (Easy):** Slower deliveries (`~1310ms`), $\pm 130\text{ ms}$ sweet spot, $10\%$ mistimed wicket risk, casual AI.
+- **Medium (Normal):** $1050\text{ ms}$ deliveries, $\pm 95\text{ ms}$ sweet spot, $25\%$ mistimed wicket risk, balanced AI.
+- **High (Pro):** Rapid deliveries (`~820ms`), $\pm 65\text{ ms}$ sweet spot, $45\%$ mistimed wicket risk, ruthless disciplined AI.
+
+### E. Inning Termination & Victory Conditions
 - **Innings 1 finishes when:** `remaining_balls <= 0` OR `wickets >= max_wickets`.
 - **Target in Innings 2:** `target = innings1.runs + 1`.
 - **Innings 2 finishes when:** `runs >= target` (Batting team wins immediately), OR `remaining_balls <= 0`, OR `wickets >= max_wickets`.

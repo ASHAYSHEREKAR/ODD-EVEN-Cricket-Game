@@ -21,6 +21,7 @@ const GameState = {
 
     gameMode: 'single', // 'single' | 'local2p' | 'online'
     localPlayerRole: 'p1', // 'p1' (Host/P1) or 'p2' (Joiner/P2)
+    difficulty: 'medium', // 'low' | 'medium' | 'high'
 
     toss: {
         winner: null,        // 'player' (p1) or 'computer' (p2)
@@ -46,6 +47,7 @@ const GameState = {
         deliveriesBowled: 0,
         bonusEarned: 0,
         penaltyLost: 0,
+        nonPrefScoringStreak: 0,
         preferredType: 'odd', // 'even' or 'odd'
         isBatting: true,
         shots: { sixes: 0, fours: 0, threes: 0, twos: 0, ones: 0, dots: 0 }
@@ -58,6 +60,7 @@ const GameState = {
         deliveriesBowled: 0,
         bonusEarned: 0,
         penaltyLost: 0,
+        nonPrefScoringStreak: 0,
         preferredType: 'even',
         isBatting: false,
         shots: { sixes: 0, fours: 0, threes: 0, twos: 0, ones: 0, dots: 0 }
@@ -77,6 +80,7 @@ const GameState = {
     init(initialBalls = 12, maxWickets = 10, mode = 'single') {
         this.currentPhase = this.PHASE_MENU;
         this.gameMode = mode;
+        this.difficulty = this.getStoredDifficulty();
         this.match.initialBalls = initialBalls;
         this.match.remainingBalls = initialBalls;
         this.match.currentInning = 1;
@@ -109,6 +113,7 @@ const GameState = {
             deliveriesBowled: 0,
             bonusEarned: 0,
             penaltyLost: 0,
+            nonPrefScoringStreak: 0,
             preferredType: 'odd',
             isBatting: true,
             shots: { sixes: 0, fours: 0, threes: 0, twos: 0, ones: 0, dots: 0 }
@@ -121,6 +126,7 @@ const GameState = {
             deliveriesBowled: 0,
             bonusEarned: 0,
             penaltyLost: 0,
+            nonPrefScoringStreak: 0,
             preferredType: 'even',
             isBatting: false,
             shots: { sixes: 0, fours: 0, threes: 0, twos: 0, ones: 0, dots: 0 }
@@ -277,6 +283,24 @@ const GameState = {
         } catch (e) {}
         this.computer.name = finalName;
         return finalName;
+    },
+
+    getStoredDifficulty() {
+        try {
+            const diff = localStorage.getItem('cricket_difficulty') || 'medium';
+            return ['low', 'medium', 'high'].includes(diff) ? diff : 'medium';
+        } catch (e) {
+            return 'medium';
+        }
+    },
+
+    setStoredDifficulty(difficulty) {
+        const val = ['low', 'medium', 'high'].includes(difficulty) ? difficulty : 'medium';
+        try {
+            localStorage.setItem('cricket_difficulty', val);
+        } catch (e) {}
+        this.difficulty = val;
+        return val;
     },
 
     getHighScore() {

@@ -171,6 +171,27 @@ class CricketMatchEngine:
         # Update deliveries count
         innings.deliveries_bowled += 1
 
+        # Track consecutive non-preferred scoring hits
+        is_wicket_penalty = False
+        if not is_pref:
+            if is_wicket:
+                innings.non_pref_scoring_streak = 0
+            elif runs > 0:
+                innings.non_pref_scoring_streak += 1
+                if innings.non_pref_scoring_streak >= 3:
+                    # 3rd consecutive non-preferred scoring hit triggers Wicket Penalty
+                    is_wicket_penalty = True
+                    innings.wickets += 1
+                    innings.non_pref_scoring_streak = 0
+                    commentary += " | 💥 WICKET PENALTY! 3rd consecutive non-preferred hit costs 1 WICKET!"
+            else:
+                # Safe dot ball on non-preferred resets the risky streak
+                innings.non_pref_scoring_streak = 0
+        else:
+            # On preferred ball, if wicket falls, reset streak
+            if is_wicket:
+                innings.non_pref_scoring_streak = 0
+
         # Update score
         if is_wicket:
             innings.wickets += 1
@@ -194,7 +215,7 @@ class CricketMatchEngine:
             is_preferred_ball=is_pref,
             outcome_type=outcome_type,
             runs_scored=runs,
-            is_wicket=is_wicket,
+            is_wicket=is_wicket or is_wicket_penalty,
             ball_pool_delta=delta,
             net_balls_change=net_change,
             remaining_balls_after=new_remaining,
@@ -204,6 +225,8 @@ class CricketMatchEngine:
                 "batting_team": innings.batting_team.name,
                 "current_score": f"{innings.runs}/{innings.wickets}",
                 "target": innings.target,
+                "is_wicket_penalty": is_wicket_penalty,
+                "non_pref_scoring_streak": innings.non_pref_scoring_streak,
             },
         )
         innings.history.append(result)

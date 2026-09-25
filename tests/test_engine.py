@@ -133,6 +133,39 @@ class TestCricketEngineRules(unittest.TestCase):
         self.assertEqual(inn1.remaining_balls, 8)
         self.assertEqual(inn1.wickets, 1)
 
+    def test_consecutive_non_preferred_scoring_penalty(self):
+        """Scoring runs on non-preferred balls 3 consecutive times awards an extra wicket penalty."""
+        # Ball 1 (ODD - Preferred): Dot
+        self.engine.process_delivery(runs=0, is_wicket=False)
+        self.assertEqual(self.engine.state.innings1.wickets, 0)
+        self.assertEqual(self.engine.state.innings1.non_pref_scoring_streak, 0)
+
+        # 1st Non-preferred hit (Ball 2 - EVEN): 1 run
+        res1 = self.engine.process_delivery(runs=1, is_wicket=False)
+        self.assertEqual(self.engine.state.innings1.wickets, 0)
+        self.assertEqual(self.engine.state.innings1.non_pref_scoring_streak, 1)
+
+        # Preferred ball in between (Ball 3 - ODD): 4 runs (bonus)
+        self.engine.process_delivery(runs=4, is_wicket=False)
+        self.assertEqual(self.engine.state.innings1.wickets, 0)
+        # Streak remains 1
+        self.assertEqual(self.engine.state.innings1.non_pref_scoring_streak, 1)
+
+        # 2nd Non-preferred hit (Ball 4 - EVEN): 2 runs
+        res2 = self.engine.process_delivery(runs=2, is_wicket=False)
+        self.assertEqual(self.engine.state.innings1.wickets, 0)
+        self.assertEqual(self.engine.state.innings1.non_pref_scoring_streak, 2)
+
+        # Preferred ball (Ball 5 - ODD): 1 run
+        self.engine.process_delivery(runs=1, is_wicket=False)
+
+        # 3rd Non-preferred hit (Ball 6 - EVEN): 1 run -> TRIGGERS WICKET PENALTY!
+        res3 = self.engine.process_delivery(runs=1, is_wicket=False)
+        self.assertEqual(self.engine.state.innings1.wickets, 1) # Wicket penalty applied!
+        self.assertEqual(self.engine.state.innings1.non_pref_scoring_streak, 0) # Reset to 0
+        self.assertTrue(res3.is_wicket)
+        self.assertTrue(res3.metadata.get("is_wicket_penalty"))
+
     def test_innings_switch_and_target_chase_win(self):
         """Full match flow: Innings 1 finishes -> Innings 2 starts -> Team 2 chases target and wins."""
         # Innings 1: 5 dots on preferred ball = 5 * -2 = -10 balls -> innings complete

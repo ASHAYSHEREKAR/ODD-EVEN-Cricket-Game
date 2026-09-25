@@ -9,6 +9,7 @@ const UIController = {
     init() {
         this.cacheElements();
         this.loadSettings();
+        this.setupDifficultySlider();
         this.setupModeTabs();
         this.setupOnlineLobby();
         this.updateMenuProfile();
@@ -243,6 +244,94 @@ const UIController = {
                 app.startTossSequence();
             });
         }
+    },
+
+    loadSettings() {
+        const soundToggle = document.getElementById('sound-toggle');
+        if (soundToggle) {
+            try {
+                const soundPref = localStorage.getItem('cricket_sound_enabled');
+                soundToggle.checked = (soundPref === null || soundPref === 'true');
+            } catch (e) {
+                soundToggle.checked = true;
+            }
+            soundToggle.addEventListener('change', (e) => {
+                try {
+                    localStorage.setItem('cricket_sound_enabled', e.target.checked.toString());
+                } catch (err) {}
+            });
+        }
+    },
+
+    setupDifficultySlider() {
+        const menuSlider = document.getElementById('menu-difficulty-slider');
+        const settingsSlider = document.getElementById('settings-difficulty-slider');
+        const menuBadge = document.getElementById('menu-difficulty-badge');
+        const settingsBadge = document.getElementById('settings-difficulty-badge');
+        const menuDesc = document.getElementById('menu-difficulty-desc');
+
+        const diffMap = { '1': 'low', '2': 'medium', '3': 'high' };
+        const numMap = { 'low': 1, 'medium': 2, 'high': 3 };
+
+        const currentDiff = GameState.getStoredDifficulty();
+        const initialVal = numMap[currentDiff] || 2;
+
+        const updateDifficultyUI = (valStr) => {
+            const diffKey = diffMap[valStr] || 'medium';
+            GameState.setStoredDifficulty(diffKey);
+
+            const badgeConfig = {
+                low: { text: '🟢 LOW (EASY)', class: 'badge-low', desc: 'Gentle ball pace (1310ms), wide sweet spot (±130ms), low wicket risk, casual AI.' },
+                medium: { text: '🟡 MEDIUM', class: 'badge-medium', desc: 'Balanced pace (1050ms), standard sweet spot (±95ms), authentic cricket challenge.' },
+                high: { text: '🔴 HIGH (PRO)', class: 'badge-high', desc: 'Express pace (820ms), strict sweet spot (±65ms), deceptive swing, ruthless AI.' }
+            };
+
+            const config = badgeConfig[diffKey];
+
+            if (menuBadge) {
+                menuBadge.textContent = config.text;
+                menuBadge.className = `difficulty-badge ${config.class}`;
+            }
+            if (settingsBadge) {
+                settingsBadge.textContent = config.text;
+                settingsBadge.className = `difficulty-badge ${config.class}`;
+            }
+            if (menuDesc) {
+                menuDesc.textContent = config.desc;
+            }
+
+            // Sync sliders
+            if (menuSlider) menuSlider.value = valStr;
+            if (settingsSlider) settingsSlider.value = valStr;
+
+            // Update tick active highlights
+            document.querySelectorAll('.difficulty-tick-labels').forEach(container => {
+                container.querySelectorAll('.diff-tick').forEach(tick => {
+                    tick.classList.toggle('active', tick.dataset.val === valStr);
+                });
+            });
+        };
+
+        if (menuSlider) {
+            menuSlider.value = initialVal;
+            menuSlider.addEventListener('input', (e) => updateDifficultyUI(e.target.value));
+        }
+
+        if (settingsSlider) {
+            settingsSlider.value = initialVal;
+            settingsSlider.addEventListener('input', (e) => updateDifficultyUI(e.target.value));
+        }
+
+        // Ticking labels clickability
+        document.querySelectorAll('.diff-tick').forEach(tick => {
+            tick.addEventListener('click', (e) => {
+                const val = e.target.dataset.val;
+                if (val) updateDifficultyUI(val);
+            });
+        });
+
+        // Initialize display
+        updateDifficultyUI(initialVal.toString());
     },
 
     updateMenuProfile() {
@@ -572,6 +661,23 @@ const UIController = {
         const penaltyTicker = document.getElementById('penalty-count');
         if (bonusTicker) bonusTicker.textContent = `+${battingTeam.bonusEarned}`;
         if (penaltyTicker) penaltyTicker.textContent = `-${battingTeam.penaltyLost}`;
+
+        // Consecutive Non-Preferred scoring streak warning
+        const streakBadge = document.getElementById('streak-warning-badge');
+        if (streakBadge) {
+            const streak = battingTeam.nonPrefScoringStreak || 0;
+            if (streak === 1) {
+                streakBadge.className = 'streak-warning-badge streak-warning-1';
+                streakBadge.innerHTML = '⚠️ RISKY STREAK: 1/3';
+                Utils.show(streakBadge);
+            } else if (streak === 2) {
+                streakBadge.className = 'streak-warning-badge streak-warning-2 pulse-danger';
+                streakBadge.innerHTML = '🚨 DANGER: 2/3 RISKY HITS! NEXT = WICKET!';
+                Utils.show(streakBadge);
+            } else {
+                Utils.hide(streakBadge);
+            }
+        }
     },
 
     /**

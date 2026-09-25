@@ -55,12 +55,33 @@ Every delivery costs **1 ball** from the current match ball bank (`-1`). The rul
 | **Non-Preferred Ball** *(Ball # does not match)* | **Hit for Runs (>0)** | **`-1 Penalty`** | **`-2`** (Penalty for hitting non-preferred) | ⚠️ *Penalty tone + "HIT (-1)"* |
 | **Non-Preferred Ball** *(Ball # does not match)* | **Wicket (OUT)** | **`-1 Penalty`** | **`-2`** (Lost delivery + penalty) | 💥 *Wicket crash + "-1 PENALTY"* |
 
+### 3. The 3-Strike Wicket Penalty Rule 💥
+- **The Violation:** Scoring runs ($>0$) on non-preferred deliveries **3 consecutive times** without defending triggers an immediate **$+1$ WICKET PENALTY**.
+- **The Reset:** Playing a safe dot ball (or pressing **`D`** to block) successfully resets the risky streak back to **0**.
+- **HUD Live Alert:** The in-game HUD displays warning badges (`⚠️ RISKY STREAK: 1/3`, `🚨 DANGER: 2/3! NEXT = WICKET!`).
+
+---
+
+## 🎚️ Difficulty Levels & Parameter Calibration
+
+Players can customize their single-player challenge using the **Difficulty Slider** on the Main Menu and Settings Screen:
+
+| Gameplay Parameter | 🟢 Low (Easy) | 🟡 Medium (Normal) | 🔴 High (Pro) |
+| :--- | :--- | :--- | :--- |
+| **Delivery Flight Duration** | ~1310ms (Slower, gentle float) | 1050ms (Standard authentic pace) | ~820ms (Express pace, rapid skid) |
+| **Sweet Spot Window (4s & 6s)** | $\pm 130\text{ ms}$ (Forgiving) | $\pm 95\text{ ms}$ (Standard) | $\pm 65\text{ ms}$ (Razor-sharp precision) |
+| **Single / Double Window** | $\pm 240\text{ ms}$ | $\pm 195\text{ ms}$ | $\pm 140\text{ ms}$ |
+| **Mistimed Shot Wicket Risk** | 10% | 25% | 45% (Punishing edges/catches) |
+| **Clean Bowled on Miss** | 10% | 20% | 35% |
+| **AI Preferred Ball Attack** | ~50% Boundaries, 22% Out | ~65% Boundaries, 12% Out | ~80% Boundaries, 5% Out |
+| **AI Non-Preferred Defense** | 55% Safe Dots (45% Errors) | 80% Safe Dots | **92% Safe Dots** (Near-flawless discipline) |
+
 ---
 
 ## 🎮 Game Modes
 
 1. **👤 Single Player (vs AI):**
-   - Challenge an intelligent AI opponent with probabilistic Even/Odd strategy awareness.
+   - Challenge an intelligent AI opponent with 3 difficulty presets and Even/Odd strategy awareness.
    - Tracks all-time personal high scores stored in `localStorage`.
 2. **👥 Local 2-Player (Pass & Play):**
    - Play locally with custom Player 1 and Player 2 names.
@@ -124,37 +145,39 @@ For in-depth architectural details, sequence diagrams, and lifecycle specificati
 ```
 CricketGame/
 ├── .agents/                    # Multi-agent directives and guidance
+│   └── AGENTS.md               # Central AI Agent registry
 ├── assets/                     # App icons and graphics
 ├── cricket_backend/            # Python backend match engine
 │   ├── __init__.py             # Module exports
-│   ├── ai_opponent.py          # AI batting strategy algorithms
+│   ├── ai_opponent.py          # AI batting strategy algorithms (Difficulty scaled)
 │   ├── cli_runner.py           # Interactive CLI & match simulator
-│   ├── engine.py               # Core CricketMatchEngine
+│   ├── engine.py               # Core CricketMatchEngine & 3-Strike Penalty
 │   └── models.py               # Dataclasses, enums, state models
 ├── css/                        # Responsive stylesheet modules
 │   ├── animations.css          # CSS keyframe effects
 │   ├── cricket-field.css       # Pitch styling tokens
-│   ├── main.css                # Primary UI theme & components
+│   ├── main.css                # Primary UI theme, difficulty slider & HUD styles
 │   ├── responsive.css          # Mobile media queries (≤600px)
 │   └── stick-figures.css       # SVG & actor presentation styles
 ├── js/                         # Modular JavaScript client modules
 │   ├── animation-controller.js # Animation coordinator
 │   ├── app.js                  # Master application orchestrator
 │   ├── canvas-renderer.js      # 2.5D Canvas rendering & physics engine
-│   ├── game-logic.js           # Client rule evaluation & shot timing
-│   ├── game-state.js           # Client state store & local persistence
+│   ├── game-logic.js           # Client rule evaluation, 3-strike rule & shot timing
+│   ├── game-state.js           # Client state store & difficulty persistence
 │   ├── multiplayer-manager.js  # PeerJS WebRTC P2P room networking
-│   ├── ui-controller.js        # DOM screens & HUD manager
+│   ├── ui-controller.js        # DOM screens, difficulty slider & HUD manager
 │   └── utils.js                # Web Audio API & helper utilities
 ├── tests/                      # Automated test suite
 │   └── test_engine.py          # Python unit tests for rule engine
-├── index.html                  # Main application entry point
+├── index.html                  # Main application entry point & in-game tutorial
 ├── manifest.json               # Web app manifest
 ├── service-worker.js           # Cache handling & PWA worker
 ├── AGENT.md                    # Primary developer & AI directives
+├── TESTING_AGENT.md            # Quality gates & test audit protocols
+├── DOCUMENTATION_AGENT.md      # Documentation Agent operating directives
 ├── ARCHITECTURE.md             # System architecture & protocol documentation
 ├── API_REFERENCE.md            # Complete API & module documentation
-├── TESTING_AGENT.md            # Quality gates & test audit protocols
 └── TESTING_GUIDE.md            # Test execution reference
 ```
 
@@ -200,8 +223,10 @@ python cricket_backend/cli_runner.py --sim 10
 ## 📚 Documentation Index
 - [System Architecture & Physics Engine (`ARCHITECTURE.md`)](ARCHITECTURE.md)
 - [Complete API Reference & Data Contracts (`API_REFERENCE.md`)](API_REFERENCE.md)
-- [Testing Guide & Quality Gates (`TESTING_GUIDE.md`)](TESTING_GUIDE.md)
-- [Agent Directives & Specification (`AGENT.md`)](AGENT.md)
+- [Development Agent Directives (`AGENT.md`)](AGENT.md)
+- [Testing Agent Quality Gates (`TESTING_AGENT.md`)](TESTING_AGENT.md)
+- [Documentation Agent Directives (`DOCUMENTATION_AGENT.md`)](DOCUMENTATION_AGENT.md)
+- [Testing Guide & Cheat Sheet (`TESTING_GUIDE.md`)](TESTING_GUIDE.md)
 
 ---
 

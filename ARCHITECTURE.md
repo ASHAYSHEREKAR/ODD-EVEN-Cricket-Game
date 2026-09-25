@@ -62,6 +62,7 @@ sequenceDiagram
     participant GS as GameState
     participant UI as UIController
 
+    Note over App,CR: Delivery duration & variation calibrated by GameState.difficulty (Low/Med/High)
     App->>AC: startBowlerDelivery(speed, variation)
     AC->>CR: triggerPitchDelivery(speed, variation)
     Note over CR: 3D Flight: Run-up -> Pitch Bounce -> Crease Arrival
@@ -69,21 +70,22 @@ sequenceDiagram
 
     alt Human Swings or Defends
         User->>App: handlePlayerBattingAction(isDefensive)
-        App->>GL: calculateShotOutcome(timingOffset, isDefensive)
+        App->>GL: calculateShotOutcome(timingOffset, isDefensive) [Uses Difficulty Profile]
         GL-->>App: Return outcome { runs, isWicket, rating }
     else Ball Passes (No Action)
         AC-->>App: Timeout expiration (Missed ball)
-        App->>GL: calculateShotOutcome(offset, false) -> 0 runs / dot
+        App->>GL: calculateShotOutcome(offset, false) -> 0 runs / dot (Bowled risk scaled by difficulty)
     end
 
     App->>GL: processDelivery(runs, isWicket)
+    Note over GL,GS: Evaluates rule delta (+1, 0, -1) & checks 3-Strike Non-Preferred Run Penalty
     GL->>GS: Deduct 1 ball + apply rule delta modifier (+1, 0, -1)
-    GL->>GS: Update score (runs, wickets, shot classification)
-    GL-->>App: Return DeliveryResult { delta, netChange, remaining, status }
+    GL->>GS: Update score & nonPrefScoringStreak
+    GL-->>App: Return DeliveryResult { delta, netChange, remaining, isWicketPenalty, status }
 
     App->>CR: triggerHit(runs) OR triggerWicket()
-    App->>AC: showFloatingBadge(delta)
-    App->>UI: updateScoreboard() & showCommentary()
+    App->>AC: showFloatingBadge(delta / Wicket Penalty)
+    App->>UI: updateScoreboard() [Shows Risky Streak Warning Badge] & showCommentary()
 
     opt Innings / Match State Change
         alt Status == 'INNINGS_1_OVER'

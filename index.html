@@ -93,12 +93,29 @@
                     </div>
                 </div>
 
-                <!-- Single Player Name Input -->
+                <!-- Single Player Name Input & Difficulty Selector -->
                 <div class="player-name-section" id="section-single-name">
                     <label for="player-name-input" class="name-input-label">ENTER YOUR NAME</label>
                     <div class="name-input-box">
                         <span class="input-avatar">🏏</span>
                         <input type="text" id="player-name-input" placeholder="Your Name..." maxlength="14" autocomplete="off" spellcheck="false">
+                    </div>
+
+                    <!-- Difficulty Level Slider Card -->
+                    <div class="difficulty-slider-card">
+                        <div class="difficulty-header-row">
+                            <label for="menu-difficulty-slider" class="difficulty-title-label">⚡ DIFFICULTY LEVEL</label>
+                            <span class="difficulty-badge badge-medium" id="menu-difficulty-badge">🟡 MEDIUM</span>
+                        </div>
+                        <div class="difficulty-slider-container">
+                            <input type="range" id="menu-difficulty-slider" min="1" max="3" step="1" value="2" class="difficulty-range-input">
+                            <div class="difficulty-tick-labels">
+                                <span class="diff-tick" data-val="1">LOW</span>
+                                <span class="diff-tick active" data-val="2">MEDIUM</span>
+                                <span class="diff-tick" data-val="3">HIGH</span>
+                            </div>
+                        </div>
+                        <p class="difficulty-desc" id="menu-difficulty-desc">Balanced pace (1050ms), standard sweet spot, moderate AI challenge.</p>
                     </div>
                 </div>
 
@@ -210,7 +227,8 @@
                         <h3>◇ On Non-Preferred Balls (DEFEND!)</h3>
                         <p>• <strong>Dot Ball:</strong> <strong>SAFE (0 Penalty)</strong> — Safely preserve your balls!<br>
                            • <strong>Run Scored:</strong> <strong>-1 Ball Penalty</strong> (Risky to hit!).<br>
-                           • <strong>Wicket:</strong> <strong>-1 Ball Penalty</strong> + 1 Wicket lost.</p>
+                           • <strong>Wicket:</strong> <strong>-1 Ball Penalty</strong> + 1 Wicket lost.<br>
+                           • <strong>⚠️ 3-Strike Penalty:</strong> Scoring runs on <strong>3 consecutive non-preferred balls</strong> triggers an immediate <strong>1 WICKET PENALTY</strong>!</p>
                     </div>
 
                     <div class="instruction-item">
@@ -237,6 +255,21 @@
                     <div class="setting-item">
                         <label for="sound-toggle">Procedural Audio FX</label>
                         <input type="checkbox" id="sound-toggle" checked>
+                    </div>
+
+                    <div class="setting-item setting-item-vertical">
+                        <div class="setting-label-row">
+                            <label for="settings-difficulty-slider">AI & Gameplay Difficulty</label>
+                            <span class="difficulty-badge badge-medium" id="settings-difficulty-badge">🟡 MEDIUM</span>
+                        </div>
+                        <div class="difficulty-slider-container settings-diff-slider-box">
+                            <input type="range" id="settings-difficulty-slider" min="1" max="3" step="1" value="2" class="difficulty-range-input">
+                            <div class="difficulty-tick-labels">
+                                <span class="diff-tick" data-val="1">LOW</span>
+                                <span class="diff-tick active" data-val="2">MEDIUM</span>
+                                <span class="diff-tick" data-val="3">HIGH</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <button id="back-from-settings-btn" class="btn btn-primary">BACK</button>
@@ -378,6 +411,7 @@
                 <!-- Ball Preference Badge & Target Info -->
                 <div class="hud-sub-bar">
                     <div id="ball-badge" class="ball-badge preferred">★ BALL #1 (PREFERRED: ODD) ★</div>
+                    <div id="streak-warning-badge" class="streak-warning-badge hidden">⚠️ RISKY STREAK: 0/3</div>
                     <div id="target-display" class="target-display hidden"></div>
                 </div>
 

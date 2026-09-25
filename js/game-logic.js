@@ -57,6 +57,29 @@ const GameLogic = {
 
         const ruleResult = this.evaluateDeliveryRule(ballNumber, preference, runs, isWicket);
 
+        // Track consecutive non-preferred scoring hits
+        let isWicketPenalty = false;
+        if (!ruleResult.isPreferred) {
+            if (isWicket) {
+                battingTeam.nonPrefScoringStreak = 0;
+            } else if (runs > 0) {
+                battingTeam.nonPrefScoringStreak = (battingTeam.nonPrefScoringStreak || 0) + 1;
+                if (battingTeam.nonPrefScoringStreak >= 3) {
+                    isWicketPenalty = true;
+                    battingTeam.wickets += 1;
+                    battingTeam.nonPrefScoringStreak = 0;
+                    ruleResult.commentary += ' | 💥 WICKET PENALTY! 3rd consecutive non-preferred hit costs 1 WICKET!';
+                }
+            } else {
+                // Safe dot ball resets risky streak
+                battingTeam.nonPrefScoringStreak = 0;
+            }
+        } else {
+            if (isWicket) {
+                battingTeam.nonPrefScoringStreak = 0;
+            }
+        }
+
         // Update batting metrics
         battingTeam.deliveriesBowled += 1;
         if (isWicket) {
@@ -92,7 +115,9 @@ const GameLogic = {
             isPreferred: ruleResult.isPreferred,
             outcomeType: ruleResult.outcomeType,
             runsScored: runs,
-            isWicket,
+            isWicket: isWicket || isWicketPenalty,
+            isWicketPenalty,
+            nonPrefStreak: battingTeam.nonPrefScoringStreak || 0,
             delta: ruleResult.delta,
             netChange,
             remainingAfter: newRemaining,
@@ -139,6 +164,7 @@ const GameLogic = {
 
     /**
      * Calculates shot outcome based on timing offset (in ms from sweet spot)
+     * Calibrated by Difficulty level: Low (Easy), Medium, High (Hard)
      */
     calculateShotOutcome(timingOffsetMs, isDefensive = false) {
         if (isDefensive) {
@@ -153,9 +179,31 @@ const GameLogic = {
 
         const absOffset = Math.abs(timingOffsetMs);
         const isEarly = timingOffsetMs < 0;
+        const diff = GameState.difficulty || 'medium';
 
-        // Sweet spot: -95ms to +95ms
-        if (absOffset <= 95) {
+        // Difficulty parameter profiles
+        let sweetSpotLimit = 95;
+        let goodLimit = 195;
+        let mistimedLimit = 320;
+        let mistimedWicketChance = 0.25;
+        let missedBowledChance = 0.40;
+
+        if (diff === 'low') {
+            sweetSpotLimit = 130;
+            goodLimit = 240;
+            mistimedLimit = 360;
+            mistimedWicketChance = 0.10;
+            missedBowledChance = 0.15;
+        } else if (diff === 'high') {
+            sweetSpotLimit = 65;
+            goodLimit = 140;
+            mistimedLimit = 260;
+            mistimedWicketChance = 0.45;
+            missedBowledChance = 0.65;
+        }
+
+        // Sweet spot
+        if (absOffset <= sweetSpotLimit) {
             const runs = Math.random() < 0.50 ? 6 : 4;
             return {
                 runs,
@@ -163,7 +211,7 @@ const GameLogic = {
                 rating: 'PERFECT',
                 ratingText: runs === 6 ? '🚀 HUGE SIX!' : '⚡ CRACKING FOUR!'
             };
-        } else if (absOffset <= 195) {
+        } else if (absOffset <= goodLimit) {
             // Good timing: 1 or 2 runs
             const runs = Math.random() < 0.65 ? 1 : 2;
             const prefix = isEarly ? '⚡ EARLY DRIVE' : '⚡ LATE CUT';
@@ -173,11 +221,11 @@ const GameLogic = {
                 rating: 'GOOD',
                 ratingText: `${prefix} (${runs} RUN${runs > 1 ? 'S' : ''})`
             };
-        } else if (absOffset <= 320) {
+        } else if (absOffset <= mistimedLimit) {
             // Mistimed: Early or Late
             const roll = Math.random();
             const tag = isEarly ? '⚠️ SWUNG EARLY' : '⚠️ SWUNG LATE';
-            if (roll < 0.25) {
+            if (roll < mistimedWicketChance) {
                 return {
                     runs: 0,
                     isWicket: true,
@@ -195,7 +243,7 @@ const GameLogic = {
         } else {
             // Complete miss / Clean bowled
             const roll = Math.random();
-            if (roll < 0.40) {
+            if (roll < missedBowledChance) {
                 return {
                     runs: 0,
                     isWicket: true,
@@ -214,36 +262,88 @@ const GameLogic = {
     },
 
     /**
-     * AI Batting decision for Computer turns
+     * AI Batting decision for Computer turns calibrated by Difficulty
      */
     simulateAIBattingTurn() {
         const battingTeam = GameState.computer;
         const nextBall = battingTeam.deliveriesBowled + 1;
         const isPref = GameState.isPreferredBall(nextBall, battingTeam.preferredType);
+        const diff = GameState.difficulty || 'medium';
 
-        if (isPref) {
-            // AI attacks on preferred balls
-            const roll = Math.random();
-            if (roll < 0.12) {
-                return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
-            } else if (roll < 0.45) {
-                const runs = Math.random() < 0.5 ? 6 : 4;
-                return { runs, isWicket: false, rating: 'PERFECT', ratingText: runs === 6 ? '🚀 6 RUNS' : '⚡ 4 RUNS' };
-            } else if (roll < 0.85) {
-                const runs = Math.random() < 0.7 ? 1 : 2;
-                return { runs, isWicket: false, rating: 'GOOD', ratingText: `${runs} RUN(S)` };
+        if (diff === 'low') {
+            // Easy AI: Higher mistake rate, lower tactical discipline
+            if (isPref) {
+                const roll = Math.random();
+                if (roll < 0.22) {
+                    return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
+                } else if (roll < 0.55) {
+                    const runs = Math.random() < 0.5 ? 6 : 4;
+                    return { runs, isWicket: false, rating: 'PERFECT', ratingText: runs === 6 ? '🚀 6 RUNS' : '⚡ 4 RUNS' };
+                } else if (roll < 0.85) {
+                    const runs = Math.random() < 0.7 ? 1 : 2;
+                    return { runs, isWicket: false, rating: 'GOOD', ratingText: `${runs} RUN(S)` };
+                } else {
+                    return { runs: 0, isWicket: false, rating: 'DOT', ratingText: 'DOT' };
+                }
             } else {
-                return { runs: 0, isWicket: false, rating: 'DOT', ratingText: 'DOT' };
+                const roll = Math.random();
+                if (roll < 0.55) {
+                    return { runs: 0, isWicket: false, rating: 'DEFENDED', ratingText: '🛡️ DEFENDED (SAFE)' };
+                } else if (roll < 0.85) {
+                    return { runs: 1, isWicket: false, rating: 'GOOD', ratingText: '1 RUN' };
+                } else {
+                    return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
+                }
+            }
+        } else if (diff === 'high') {
+            // Hard AI: Highly disciplined defense and deadly boundary conversion
+            if (isPref) {
+                const roll = Math.random();
+                if (roll < 0.05) {
+                    return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
+                } else if (roll < 0.65) {
+                    const runs = Math.random() < 0.55 ? 6 : 4;
+                    return { runs, isWicket: false, rating: 'PERFECT', ratingText: runs === 6 ? '🚀 6 RUNS' : '⚡ 4 RUNS' };
+                } else if (roll < 0.95) {
+                    const runs = Math.random() < 0.6 ? 2 : 1;
+                    return { runs, isWicket: false, rating: 'GOOD', ratingText: `${runs} RUNS` };
+                } else {
+                    return { runs: 0, isWicket: false, rating: 'DOT', ratingText: 'DOT' };
+                }
+            } else {
+                const roll = Math.random();
+                if (roll < 0.92) {
+                    return { runs: 0, isWicket: false, rating: 'DEFENDED', ratingText: '🛡️ DEFENDED (SAFE)' };
+                } else if (roll < 0.97) {
+                    return { runs: 1, isWicket: false, rating: 'GOOD', ratingText: '1 RUN' };
+                } else {
+                    return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
+                }
             }
         } else {
-            // AI defends on non-preferred balls
-            const roll = Math.random();
-            if (roll < 0.80) {
-                return { runs: 0, isWicket: false, rating: 'DEFENDED', ratingText: '🛡️ DEFENDED (SAFE)' };
-            } else if (roll < 0.90) {
-                return { runs: 1, isWicket: false, rating: 'GOOD', ratingText: '1 RUN' };
+            // Medium (Default)
+            if (isPref) {
+                const roll = Math.random();
+                if (roll < 0.12) {
+                    return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
+                } else if (roll < 0.45) {
+                    const runs = Math.random() < 0.5 ? 6 : 4;
+                    return { runs, isWicket: false, rating: 'PERFECT', ratingText: runs === 6 ? '🚀 6 RUNS' : '⚡ 4 RUNS' };
+                } else if (roll < 0.85) {
+                    const runs = Math.random() < 0.7 ? 1 : 2;
+                    return { runs, isWicket: false, rating: 'GOOD', ratingText: `${runs} RUN(S)` };
+                } else {
+                    return { runs: 0, isWicket: false, rating: 'DOT', ratingText: 'DOT' };
+                }
             } else {
-                return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
+                const roll = Math.random();
+                if (roll < 0.80) {
+                    return { runs: 0, isWicket: false, rating: 'DEFENDED', ratingText: '🛡️ DEFENDED (SAFE)' };
+                } else if (roll < 0.92) {
+                    return { runs: 1, isWicket: false, rating: 'GOOD', ratingText: '1 RUN' };
+                } else {
+                    return { runs: 0, isWicket: true, rating: 'WICKET', ratingText: '🧤 OUT!' };
+                }
             }
         }
     }
