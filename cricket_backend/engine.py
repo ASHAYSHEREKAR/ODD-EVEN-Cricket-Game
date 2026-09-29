@@ -23,7 +23,7 @@ class CricketMatchEngine:
         team1_name: str = "Player",
         team2_name: str = "Computer",
         initial_balls: int = 12,
-        max_wickets: int = 10,
+        max_wickets: int = 4,
         team1_is_human: bool = True,
         team2_is_human: bool = False,
     ):

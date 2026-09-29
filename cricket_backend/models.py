@@ -69,7 +69,7 @@ class InningsState:
     bowling_team: Team
     runs: int = 0
     wickets: int = 0
-    max_wickets: int = 10
+    max_wickets: int = 3
     deliveries_bowled: int = 0   # Total actual deliveries bowled (1, 2, 3...)
     initial_balls: int = 12      # Starting quota of balls
     bonus_balls_earned: int = 0  # Total +1 additions from rules
@@ -111,7 +111,7 @@ class MatchState:
     team1: Team
     team2: Team
     initial_balls_per_innings: int = 12
-    max_wickets: int = 10
+    max_wickets: int = 3
     phase: MatchPhase = MatchPhase.SETUP
     toss_winner: Optional[Team] = None
     toss_loser: Optional[Team] = None

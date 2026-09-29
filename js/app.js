@@ -22,6 +22,7 @@ class CricketGameApp {
         UIController.init();
         AnimationController.init();
         this.setupEventListeners();
+        this.setupPullToRefresh();
         this.setupMultiplayerListeners();
         this.checkInviteUrl();
         UIController.showScreen('menu');
@@ -61,6 +62,10 @@ class CricketGameApp {
             }
             UIController.showScreen('menu');
         });
+
+        // Quick Refresh / Reload Buttons
+        document.getElementById('refresh-game-btn')?.addEventListener('click', () => this.handleQuickRefresh());
+        document.getElementById('pause-reload-btn')?.addEventListener('click', () => window.location.reload());
 
         // Pause / Resume Event Handlers
         document.getElementById('pause-game-btn')?.addEventListener('click', () => this.togglePause());
@@ -266,12 +271,39 @@ class CricketGameApp {
         this.isPaused = !this.isPaused;
 
         if (this.isPaused) {
+            // Safely cancel delivery timer and clear canvas state to avoid hanging promises
+            AnimationController.reset();
+            this.deliveryActive = false;
+            this.isProcessingBall = false;
             UIController.showPauseMenu();
         } else {
             UIController.showScreen('game');
+            if (window.CanvasRenderer) {
+                CanvasRenderer.lastTime = performance.now();
+                CanvasRenderer.resize();
+            }
             UIController.updateScoreboard();
-            if (!this.deliveryActive && !this.isProcessingBall) {
-                this.startNextDelivery();
+            UIController.showCommentary('▶️ MATCH RESUMED — GET READY!');
+
+            const isHumanBatting = this.isLocalPlayerBatting();
+            const controlPanel = document.querySelector('.batting-control-panel');
+            const swingBtn = document.getElementById('swing-bat-btn');
+            const defendBtn = document.getElementById('defend-bat-btn');
+            if (controlPanel) {
+                controlPanel.style.display = isHumanBatting ? 'flex' : 'none';
+            }
+            if (swingBtn) swingBtn.disabled = !isHumanBatting;
+            if (defendBtn) defendBtn.disabled = !isHumanBatting;
+
+            // Clear transient locks and trigger next delivery after a short 350ms breather
+            if (GameState.match.remainingBalls > 0 && GameState.currentPhase !== GameState.PHASE_RESULT) {
+                this.deliveryActive = false;
+                this.isProcessingBall = false;
+                setTimeout(() => {
+                    if (!this.isPaused && (GameState.currentPhase === GameState.PHASE_INNINGS_1 || GameState.currentPhase === GameState.PHASE_INNINGS_2)) {
+                        this.startNextDelivery();
+                    }
+                }, 350);
             }
         }
     }
@@ -284,7 +316,7 @@ class CricketGameApp {
             const p2 = document.getElementById('p2-name-input')?.value || 'Player 2';
             GameState.setStoredP1Name(p1);
             GameState.setStoredP2Name(p2);
-            GameState.init(this.selectedBalls, 10, GameState.MODE_LOCAL_2P);
+            GameState.init(this.selectedBalls, 3, GameState.MODE_LOCAL_2P);
             UIController.showScreen('toss');
 
             const tossWinner = Math.random() < 0.5 ? 'player' : 'computer';
@@ -295,7 +327,7 @@ class CricketGameApp {
                 console.warn('Cannot start online match: challenger has not clicked ready yet.');
                 return;
             }
-            GameState.init(this.selectedBalls, 10, GameState.MODE_ONLINE);
+            GameState.init(this.selectedBalls, 3, GameState.MODE_ONLINE);
             UIController.showScreen('toss');
 
             if (MultiplayerManager.isHost) {
@@ -313,7 +345,7 @@ class CricketGameApp {
             if (nameInput) {
                 GameState.setStoredPlayerName(nameInput.value);
             }
-            GameState.init(this.selectedBalls, 10, GameState.MODE_SINGLE);
+            GameState.init(this.selectedBalls, 3, GameState.MODE_SINGLE);
             UIController.showScreen('toss');
 
             const tossWinner = Math.random() < 0.5 ? 'player' : 'computer';
@@ -457,7 +489,11 @@ class CricketGameApp {
         if (defendBtn) defendBtn.disabled = !isHumanBatting;
 
         await Utils.wait(400);
-        if (this.isPaused) return;
+        if (this.isPaused) {
+            this.deliveryActive = false;
+            this.isProcessingBall = false;
+            return;
+        }
 
         const deliveryObj = AnimationController.startBowlerDelivery(chosenSpeed, chosenVariation);
         this.contactWindow = {
@@ -467,7 +503,11 @@ class CricketGameApp {
         };
 
         deliveryObj.promise.then(async () => {
-            if (this.isPaused) return;
+            if (this.isPaused) {
+                this.deliveryActive = false;
+                this.isProcessingBall = false;
+                return;
+            }
 
             if (isHumanBatting && this.deliveryActive && !this.isProcessingBall) {
                 // Ball passed without shot -> DOT or Wicket
@@ -561,7 +601,11 @@ class CricketGameApp {
         UIController.showCommentary(result.commentary, result.isWicketPenalty ? 'penalty' : (result.delta > 0 ? 'bonus' : (result.delta < 0 ? 'penalty' : 'safe')));
 
         await Utils.wait(1200);
-        if (this.isPaused) return;
+        if (this.isPaused) {
+            this.deliveryActive = false;
+            this.isProcessingBall = false;
+            return;
+        }
 
         // Check Innings & Match Progression
         if (result.status === 'INNINGS_1_OVER') {
@@ -593,6 +637,81 @@ class CricketGameApp {
 
         UIController.updateScoreboard();
         UIController.showInningsBreakScreen(target, newBatting, opponentTeam);
+    }
+
+    handleQuickRefresh() {
+        if (confirm('🔄 Reload and refresh the game?')) {
+            window.location.reload();
+        }
+    }
+
+    /**
+     * Mobile Touch Pull-Down to Refresh & Screen Recovery Gesture
+     */
+    setupPullToRefresh() {
+        let touchStartY = 0;
+        let touchCurrentY = 0;
+        let isPulling = false;
+        const threshold = 65;
+        const indicator = document.getElementById('pull-refresh-indicator');
+        const icon = indicator?.querySelector('.pull-refresh-icon');
+        const text = indicator?.querySelector('.pull-refresh-text');
+
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            const activeScreen = document.querySelector('.screen.active');
+            const atTop = !activeScreen || activeScreen.scrollTop <= 6;
+            if (atTop) {
+                touchStartY = e.touches[0].clientY;
+                touchCurrentY = touchStartY;
+                isPulling = true;
+            } else {
+                isPulling = false;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isPulling || e.touches.length !== 1) return;
+            touchCurrentY = e.touches[0].clientY;
+            const pullDistance = touchCurrentY - touchStartY;
+
+            if (pullDistance > 0 && indicator) {
+                const distance = Math.min(pullDistance * 0.45, 80);
+                indicator.style.transform = `translate(-50%, ${distance}px)`;
+                indicator.style.opacity = String(Math.min(1, distance / 35));
+
+                if (distance >= threshold * 0.45) {
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                    if (text) text.textContent = 'Release to reload 🔄';
+                    indicator.classList.add('ready');
+                } else {
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                    if (text) text.textContent = 'Pull down to refresh';
+                    indicator.classList.remove('ready');
+                }
+            }
+        }, { passive: true });
+
+        const endPull = () => {
+            if (!isPulling) return;
+            isPulling = false;
+            const pullDistance = (touchCurrentY - touchStartY) * 0.45;
+
+            if (pullDistance >= threshold * 0.45 && indicator) {
+                if (text) text.textContent = '🔄 Reloading...';
+                indicator.classList.add('refreshing');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 250);
+            } else if (indicator) {
+                indicator.style.transform = 'translate(-50%, -100%)';
+                indicator.style.opacity = '0';
+                indicator.classList.remove('ready', 'refreshing');
+            }
+        };
+
+        window.addEventListener('touchend', endPull, { passive: true });
+        window.addEventListener('touchcancel', endPull, { passive: true });
     }
 }
 

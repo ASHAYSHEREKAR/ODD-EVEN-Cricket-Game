@@ -1101,21 +1101,91 @@ body {
     50% { box-shadow: 0 0 28px rgba(0, 230, 118, 0.8); }
 }
 
-/* Pause HUD Button */
+/* Action HUD Buttons */
+.hud-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .btn-pause {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     color: #ffffff;
     font-size: 1.1rem;
-    padding: 6px 12px;
+    padding: 6px 10px;
     cursor: pointer;
     transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.btn-hud-refresh {
+    font-size: 1.05rem;
+    padding: 6px 9px;
 }
 
 .btn-pause:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     transform: scale(1.05);
+}
+
+.btn-pause:active {
+    transform: scale(0.95);
+}
+
+/* ===================================
+   MOBILE PULL-TO-REFRESH INDICATOR
+   =================================== */
+.pull-refresh-indicator {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 9999;
+    pointer-events: none;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+    opacity: 0;
+}
+
+.pull-refresh-content {
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(0, 230, 118, 0.4);
+    border-radius: 24px;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 230, 118, 0.25);
+    color: #f8fafc;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.pull-refresh-icon {
+    font-size: 1.1rem;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.pull-refresh-indicator.ready .pull-refresh-content {
+    border-color: #ffd600;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(255, 214, 0, 0.4);
+}
+
+.pull-refresh-indicator.refreshing .pull-refresh-icon {
+    animation: spinRefresh 0.8s linear infinite;
+}
+
+@keyframes spinRefresh {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* ===================================

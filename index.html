@@ -55,6 +55,14 @@
     <!-- Game Container -->
     <div id="game-container">
 
+        <!-- Mobile Pull-Down Refresh Indicator -->
+        <div id="pull-refresh-indicator" class="pull-refresh-indicator">
+            <div class="pull-refresh-content">
+                <span class="pull-refresh-icon">⬇️</span>
+                <span class="pull-refresh-text">Pull down to refresh</span>
+            </div>
+        </div>
+
         <!-- Main Menu Screen -->
         <div id="menu-screen" class="screen active">
             <div class="menu-content">
@@ -235,12 +243,14 @@
                         <h3>⚡ Controls & Shortcuts</h3>
                         <p>• Click/Tap <strong>SWING BAT</strong> or press <strong>SPACEBAR</strong> to hit.<br>
                            • Click/Tap <strong>DEFEND</strong> or press <strong>D</strong> for a safe dot ball.<br>
-                           • Press <strong>P</strong> or tap <strong>⏸️</strong> to pause the match.</p>
+                           • Press <strong>P</strong> or tap <strong>⏸️</strong> to pause the match.<br>
+                           • Tap <strong>🔄</strong> or pull down anywhere on phone to refresh/reload if needed.</p>
                     </div>
 
                     <div class="instruction-item">
-                        <h3>🏆 Match Result</h3>
-                        <p>Highest score after both innings wins! Ties occur if runs are strictly identical.</p>
+                        <h3>🏆 Match Result & 3 Wickets Limit</h3>
+                        <p>• Maximum <strong>3 Wickets</strong> per innings (3 wickets lost = All Out!).<br>
+                           • Highest score after both innings wins! Ties occur if runs are strictly identical.</p>
                     </div>
                 </div>
                 <button id="back-from-help-btn" class="btn btn-primary">BACK TO MENU</button>
@@ -404,8 +414,11 @@
                         </div>
                     </div>
 
-                    <!-- Pause Button in Top HUD -->
-                    <button id="pause-game-btn" class="btn-pause" title="Pause Game (P)">⏸️</button>
+                    <!-- Action Buttons in Top HUD -->
+                    <div class="hud-action-buttons">
+                        <button id="refresh-game-btn" class="btn-pause btn-hud-refresh" title="Reload / Refresh Game">🔄</button>
+                        <button id="pause-game-btn" class="btn-pause" title="Pause Game (P)">⏸️</button>
+                    </div>
                 </div>
 
                 <!-- Ball Preference Badge & Target Info -->
@@ -512,6 +525,7 @@
                 <div class="menu-buttons">
                     <button id="resume-game-btn" class="btn btn-primary btn-pulse">▶️ RESUME PLAY</button>
                     <button id="restart-match-btn" class="btn btn-secondary">🔄 RESTART MATCH</button>
+                    <button id="pause-reload-btn" class="btn btn-secondary">🌐 RELOAD APP</button>
                     <button id="pause-main-menu-btn" class="btn btn-secondary">🏠 MAIN MENU</button>
                 </div>
             </div>

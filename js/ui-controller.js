@@ -64,7 +64,7 @@ const UIController = {
                 GameState.setStoredPlayerName(pName);
                 GameState.localPlayerRole = 'p1';
                 const balls = window.cricketGameApp?.selectedBalls || 12;
-                GameState.init(balls, 10, GameState.MODE_ONLINE);
+                GameState.init(balls, 3, GameState.MODE_ONLINE);
 
                 hostBtn.disabled = true;
                 hostBtn.textContent = '⌛ CREATING...';
@@ -102,7 +102,7 @@ const UIController = {
                 const nameInput = document.getElementById('online-name-input');
                 const pName = (nameInput?.value || '').trim() || 'Player 2';
                 GameState.localPlayerRole = 'p2';
-                GameState.init(12, 10, GameState.MODE_ONLINE);
+                GameState.init(12, 3, GameState.MODE_ONLINE);
 
                 if (joinStatusElem) joinStatusElem.textContent = 'Connecting to host room...';
                 joinConfirmBtn.disabled = true;

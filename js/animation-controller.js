@@ -25,6 +25,11 @@ const AnimationController = {
         if (window.CanvasRenderer) {
             CanvasRenderer.state.ball.visible = false;
             CanvasRenderer.state.ball.isHit = false;
+            CanvasRenderer.state.bowler.isBowling = false;
+            CanvasRenderer.state.bowler.armAngle = 0;
+            CanvasRenderer.state.bowler.runUpProgress = 0;
+            CanvasRenderer.state.bowler.runUpOffset = 0;
+            CanvasRenderer.state.bowler.torsoLean = 0;
             CanvasRenderer.state.batsman.isSwinging = false;
             CanvasRenderer.state.batsman.isDefending = false;
             CanvasRenderer.state.stumps.batting.broken = false;

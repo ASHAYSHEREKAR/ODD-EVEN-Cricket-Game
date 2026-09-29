@@ -34,7 +34,7 @@ const GameState = {
         remainingBalls: 12,
         currentInning: 1,    // 1 or 2
         target: null,
-        maxWickets: 10,
+        maxWickets: 3,
         winner: null,
         isTie: false,
         resultDescription: ''
@@ -77,7 +77,7 @@ const GameState = {
         commentary: ''
     },
 
-    init(initialBalls = 12, maxWickets = 10, mode = 'single') {
+    init(initialBalls = 12, maxWickets = 3, mode = 'single') {
         this.currentPhase = this.PHASE_MENU;
         this.gameMode = mode;
         this.difficulty = this.getStoredDifficulty();

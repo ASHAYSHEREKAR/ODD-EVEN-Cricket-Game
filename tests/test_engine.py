@@ -192,6 +192,32 @@ class TestCricketEngineRules(unittest.TestCase):
         self.assertEqual(self.engine.state.winner.name, "Computer")
         self.assertIn("Computer WON", self.engine.state.result_description)
 
+    def test_all_out_innings_1_at_3_wickets(self):
+        """Verify innings 1 ends immediately when reaching 3 wickets limit (all-out)."""
+        engine = CricketMatchEngine(
+            team1_name="Player",
+            team2_name="Computer",
+            initial_balls=24,
+            max_wickets=3,
+        )
+        engine.conduct_toss(winner=engine.team1, preference=BallPreference.ODD)
+        
+        # Wicket 1 (ODD - preferred wicket)
+        engine.process_delivery(runs=0, is_wicket=True)
+        self.assertEqual(engine.state.innings1.wickets, 1)
+        self.assertFalse(engine.state.innings1.is_completed)
+
+        # Wicket 2 (EVEN - non-preferred wicket)
+        engine.process_delivery(runs=0, is_wicket=True)
+        self.assertEqual(engine.state.innings1.wickets, 2)
+        self.assertFalse(engine.state.innings1.is_completed)
+
+        # Wicket 3 (ODD - preferred wicket) -> 3 wickets reached = ALL OUT
+        engine.process_delivery(runs=0, is_wicket=True)
+        self.assertEqual(engine.state.innings1.wickets, 3)
+        self.assertTrue(engine.state.innings1.is_completed)
+        self.assertEqual(engine.state.phase, MatchPhase.INNINGS_2)
+
 
 if __name__ == "__main__":
     unittest.main()

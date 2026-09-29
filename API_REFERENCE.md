@@ -10,7 +10,7 @@ Comprehensive API documentation for both the **Python Backend Engine** and the *
 Core match orchestrator for the Even/Odd ruleset.
 
 #### Methods:
-- `__init__(team1_name: str = "Player", team2_name: str = "Computer", initial_balls: int = 12, max_wickets: int = 10, team1_is_human: bool = True, team2_is_human: bool = False)`
+- `__init__(team1_name: str = "Player", team2_name: str = "Computer", initial_balls: int = 12, max_wickets: int = 3, team1_is_human: bool = True, team2_is_human: bool = False)`
   - Initializes the match engine and configures the `MatchState`.
 - `conduct_toss(winner: Optional[Team] = None, preference: Optional[BallPreference] = None) -> Tuple[Team, BallPreference]`
   - Sets toss winner and assigns reciprocal Even/Odd preferences.

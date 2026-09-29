@@ -96,11 +96,11 @@ The backend and frontend must **strictly enforce** the following ball quota mech
 - **High (Pro):** Rapid deliveries (`~820ms`), $\pm 65\text{ ms}$ sweet spot, $45\%$ mistimed wicket risk, ruthless disciplined AI.
 
 ### E. Inning Termination & Victory Conditions
-- **Innings 1 finishes when:** `remaining_balls <= 0` OR `wickets >= max_wickets`.
+- **Innings 1 finishes when:** `remaining_balls <= 0` OR `wickets >= 3` (3-wicket limit per innings).
 - **Target in Innings 2:** `target = innings1.runs + 1`.
-- **Innings 2 finishes when:** `runs >= target` (Batting team wins immediately), OR `remaining_balls <= 0`, OR `wickets >= max_wickets`.
+- **Innings 2 finishes when:** `runs >= target` (Batting team wins immediately), OR `remaining_balls <= 0`, OR `wickets >= 3`.
 - **Winner Determination:**
-  - Team 2 runs $\ge$ target $\rightarrow$ Team 2 wins by $(W_{\text{max}} - W_2)$ wickets.
+  - Team 2 runs $\ge$ target $\rightarrow$ Team 2 wins by $(3 - W_2)$ wickets.
   - Team 1 runs $>$ Team 2 runs $\rightarrow$ Team 1 wins by $(R_1 - R_2)$ runs.
   - Team 1 runs $==$ Team 2 runs $\rightarrow$ Match Tied.
 

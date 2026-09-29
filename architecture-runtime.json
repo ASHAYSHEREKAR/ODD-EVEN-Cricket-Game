@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Even/Odd Cricket Game - Runtime Architecture",
+    "output": "architecture-runtime.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "gameplay-loop",
+        "label": "Primary gameplay loop",
+        "focus": ["player_client", "app_orchestrator", "rule_engine", "state_store", "canvas_engine"],
+        "note": "Follow the live delivery loop from user input to rule evaluation, bank accounting, and 2.5D rendering."
+      },
+      {
+        "id": "ui-and-persistence",
+        "label": "UI and local persistence",
+        "focus": ["ui_controller", "app_orchestrator", "state_store", "local_storage"],
+        "note": "Inspect DOM HUD rendering, commentary updates, and sandboxed browser LocalStorage."
+      },
+      {
+        "id": "p2p-multiplayer",
+        "label": "WebRTC P2P multiplayer",
+        "focus": ["app_orchestrator", "multiplayer_mgr", "peerjs_broker", "remote_peer"],
+        "note": "Examine PeerJS signaling broker and direct WebRTC DataChannel match synchronization."
+      },
+      {
+        "id": "edge-delivery",
+        "label": "Hosting and edge distribution",
+        "focus": ["firebase_cdn", "player_client"],
+        "note": "Trace static PWA distribution and cache-controlled asset delivery via Firebase Hosting."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "firebase_cdn",
+      "type": "cloud",
+      "brand": "firebase",
+      "label": "Firebase Hosting",
+      "sublabel": "Global CDN & PWA",
+      "pos": [50, 50],
+      "size": [130, 50],
+      "tag": "Static Edge"
+    },
+    {
+      "id": "player_client",
+      "type": "external",
+      "label": "Player Client",
+      "sublabel": "Browser & Touch/Keys",
+      "pos": [50, 170],
+      "size": [130, 50],
+      "tag": "Human Input"
+    },
+    {
+      "id": "ui_controller",
+      "type": "frontend",
+      "label": "UIController",
+      "sublabel": "HUD, Modals & Commentary",
+      "pos": [270, 50],
+      "size": [140, 50],
+      "tag": "DOM View"
+    },
+    {
+      "id": "local_storage",
+      "type": "database",
+      "label": "LocalStorage",
+      "sublabel": "High Scores & Settings",
+      "pos": [500, 50],
+      "size": [140, 50],
+      "tag": "Origin Sandbox"
+    },
+    {
+      "id": "app_orchestrator",
+      "type": "frontend",
+      "label": "CricketGameApp",
+      "sublabel": "Master Loop Orchestrator",
+      "pos": [270, 170],
+      "size": [140, 50],
+      "tag": "App Shell"
+    },
+    {
+      "id": "rule_engine",
+      "type": "frontend",
+      "label": "GameLogic",
+      "sublabel": "Shot Timing & Rule Delta",
+      "pos": [500, 170],
+      "size": [140, 50],
+      "tag": "Rule Invariants"
+    },
+    {
+      "id": "state_store",
+      "type": "frontend",
+      "label": "GameState",
+      "sublabel": "Ball Bank & Innings State",
+      "pos": [730, 170],
+      "size": [140, 50],
+      "tag": "Single Truth"
+    },
+    {
+      "id": "canvas_engine",
+      "type": "frontend",
+      "label": "CanvasRenderer",
+      "sublabel": "2.5D Vanishing Pitch & FX",
+      "pos": [960, 170],
+      "size": [140, 50],
+      "tag": "60 FPS Canvas"
+    },
+    {
+      "id": "multiplayer_mgr",
+      "type": "frontend",
+      "label": "MultiplayerManager",
+      "sublabel": "PeerJS DataChannel Sync",
+      "pos": [270, 290],
+      "size": [140, 50],
+      "tag": "P2P State"
+    },
+    {
+      "id": "peerjs_broker",
+      "type": "cloud",
+      "label": "PeerJS Cloud",
+      "sublabel": "STUN & Signaling Broker",
+      "pos": [730, 290],
+      "size": [140, 50],
+      "tag": "Signaling"
+    },
+    {
+      "id": "remote_peer",
+      "type": "external",
+      "label": "Opponent Peer",
+      "sublabel": "Remote Browser Client",
+      "pos": [960, 290],
+      "size": [140, 50],
+      "tag": "WebRTC P2P"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Browser Client Runtime Sandbox",
+      "wraps": [
+        "ui_controller",
+        "local_storage",
+        "app_orchestrator",
+        "rule_engine",
+        "state_store",
+        "canvas_engine",
+        "multiplayer_mgr"
+      ],
+      "pad": 18
+    },
+    {
+      "kind": "security-group",
+      "label": "Authoritative Rule & State Engine",
+      "wraps": ["app_orchestrator", "rule_engine", "state_store"],
+      "pad": 10
+    }
+  ],
+  "connections": [
+    {
+      "id": "conn_cdn_to_player",
+      "from": "firebase_cdn",
+      "to": "player_client",
+      "label": "HTTPS bundle",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [115, 135]
+    },
+    {
+      "id": "conn_player_to_app",
+      "from": "player_client",
+      "to": "app_orchestrator",
+      "label": "user input",
+      "variant": "emphasis",
+      "labelAt": [225, 185]
+    },
+    {
+      "id": "conn_app_to_rule",
+      "from": "app_orchestrator",
+      "to": "rule_engine",
+      "label": "timing offset",
+      "variant": "emphasis",
+      "labelAt": [455, 185]
+    },
+    {
+      "id": "conn_rule_to_state",
+      "from": "rule_engine",
+      "to": "state_store",
+      "label": "bank delta",
+      "variant": "emphasis",
+      "labelAt": [685, 185]
+    },
+    {
+      "id": "conn_state_to_canvas",
+      "from": "state_store",
+      "to": "canvas_engine",
+      "label": "pitch state",
+      "variant": "emphasis",
+      "labelAt": [915, 185]
+    },
+    {
+      "id": "conn_app_to_ui",
+      "from": "app_orchestrator",
+      "to": "ui_controller",
+      "label": "HUD update",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [340, 135]
+    },
+    {
+      "id": "conn_state_to_storage",
+      "from": "state_store",
+      "to": "local_storage",
+      "label": "save stats",
+      "fromSide": "top",
+      "toSide": "right",
+      "via": [[800, 75]],
+      "labelAt": [720, 60]
+    },
+    {
+      "id": "conn_app_to_multiplayer",
+      "from": "app_orchestrator",
+      "to": "multiplayer_mgr",
+      "label": "net events",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [340, 255]
+    },
+    {
+      "id": "conn_multiplayer_to_peerjs",
+      "from": "multiplayer_mgr",
+      "to": "peerjs_broker",
+      "label": "STUN / signal",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelAt": [570, 305]
+    },
+    {
+      "id": "conn_multiplayer_to_remote",
+      "from": "multiplayer_mgr",
+      "to": "remote_peer",
+      "label": "WebRTC DataChannel",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "bottom",
+      "via": [[340, 375], [1030, 375]],
+      "labelAt": [685, 360]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Primary Gameplay & Ball Accounting Path",
+      "items": [
+        "Evaluates shot timing window (-50ms to +50ms) to resolve runs (0, 1, 2, 4, 6) or dismissal",
+        "Even/Odd bank formula grants +1 ball (Preferred), 0 (Neutral), or -1 ball (Unpreferred)",
+        "3-strike penalty deducts an extra ball on consecutive non-preferred runs to enforce strategy"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "2.5D Pitch Rendering & Procedural Physics",
+      "items": [
+        "Projects 3D trajectory to 2.5D vanishing plane: Scale(Y) = 0.55 + 0.55 * Y_progress",
+        "Real-time procedural physics models seam, In-Swinger, Out-Swinger, and Googly spin",
+        "60 FPS animation loop renders bat swing arcs, ball impact, and wicket stumps"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "P2P WebRTC Multiplayer Synchronization",
+      "items": [
+        "PeerJS cloud broker performs STUN and signaling handshake between players",
+        "Low-latency WebRTC DataChannel synchronizes coin toss, delivery triggers, and batting actions",
+        "Host acts as authoritative local arbiter; requires zero backend match database"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Security, Isolation & Edge Delivery",
+      "items": [
+        "Zero-backend client model: no user credentials or server database to compromise",
+        "Origin-isolated LocalStorage protects high scores, sound preferences, and player alias",
+        "Firebase Hosting delivers versioned PWA assets with immutable cache control headers"
+      ]
+    }
+  ]
+}
